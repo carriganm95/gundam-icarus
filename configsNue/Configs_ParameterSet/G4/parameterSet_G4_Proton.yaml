@@ -1,0 +1,35 @@
+name: G4 Proton Fate
+isEnabled: true
+
+printDialSetsSummary: true
+
+allowPca: true
+
+useEigenDecompInFit: true
+allowEigenDecompWithBounds: true
+## EigenDecomp settings
+## "_maxNbEigenParameters_" is set by "maxNbEigenParameters"
+## - default: -1
+## "_maxEigenFraction_" is set by "maxEigenFraction"
+## - default: 1.
+## JSON block for eigenParBounds are 
+## eigenParBounds:
+##   minValue: 0
+##   maxValue: 30
+
+covarianceMatrixFilePath: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/output_CovMat_G4ProtonFate.root"
+covarianceMatrixTMatrixD: "G4ProtonFate/G4ProtonFate_covariance"
+
+parameterLimits:
+  minValue: 0
+  maxValue: 30
+
+useOnlyOneParameterPerEvent: true
+
+dialSetDefinitions:
+  - name: G4 Proton Fate dialSetDefinitions
+    applyOnDataSets: ["*"]
+    parametersBinningPath: "./binnings/binning_G4ProtonFate.txt"
+    printDialsSummary: true
+    applyCondition: "[IsData]==0"
+

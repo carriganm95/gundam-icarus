@@ -1,0 +1,27 @@
+- name: "ICARUSNuMI_nueCCInclusive"
+
+  isEnabled: true
+
+  #selectedDataEntry: "FakeDataFromMC"
+  selectedDataEntry: "FakeDataFromMC"
+
+  showSelectedEventCount: true
+
+  mc:
+    tree: "events/NuMIFull/selected"
+    filePathList:
+      - "/exp/icarus/app/users/micarrig/nuESpine/output.root"
+    # - MC POT: 1.0900766e+21
+    # - POT to normalize: 2.500616E+20
+    # - Flux weight
+    #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+    #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+    nominalWeightFormula: "(true_interaction_mode == 0) ? (1.2) * (0.321) : (0.321)" #scaling to 2.5e20
+
+  data:
+    # data from the same MC
+    - name: "FakeDataFromMC"
+      tree: "events/NuMIFull/selected"
+      nominalWeightFormula: "(0.321)" #scaling to 2.5e20
+      filePathList:
+        - "/exp/icarus/app/users/micarrig/nuESpine/output.root"

@@ -1,0 +1,34 @@
+- name: "ICARUSNuMI_1mu2p0pi"
+
+  isEnabled: true
+
+  #selectedDataEntry: "FakeDataFromMC"
+  selectedDataEntry: "TrueDeltaPTLinearScaled"
+
+  showSelectedEventCount: true
+
+  mc:
+    tree: "tclones/recoTree"
+    filePathList:
+      - "/exp/icarus/data/users/jsmedley/sbnana_jobsub/May20_MC/MakeTree_NuMI_MC_Nu_Phase2_v09_72_00_03p01_deduped_Merged_flatcaf_ReNuSyst250403_WithTrackSplit_BNBFixedProb.root"
+    # - MC POT: 1.0900766e+21
+    # - POT to normalize: 2.500616E+20
+    # - Flux weight
+    #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+    #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+    nominalWeightFormula: "(Category == 11 ? 0.71202822 : CVWgt) * 2.500616E+20/1.0900766e+21"
+
+  data:
+    # data from the same MC
+    - name: "FakeDataFromMC"
+      tree: "tclones/recoTree"
+      nominalWeightFormula: "(Category == 11 ? 0.71202822 : CVWgt) * 2.500616E+20/1.0900766e+21"
+      filePathList:
+        - "/exp/icarus/data/users/jsmedley/sbnana_jobsub/May20_MC/MakeTree_NuMI_MC_Nu_Phase2_v09_72_00_03p01_deduped_Merged_flatcaf_ReNuSyst250403_WithTrackSplit_BNBFixedProb.root"
+
+    # data from the same MC
+    - name: "TrueDeltaPTLinearScaled"
+      tree: "tclones/recoTree"
+      nominalWeightFormula: "(Category == 11 ? 0.71202822 : CVWgt) * 2.500616E+20/1.0900766e+21 * (TrueDeltaPT > 0. ? 1. + 1. * TrueDeltaPT : 1.)"
+      filePathList:
+        - "/exp/icarus/data/users/jsmedley/sbnana_jobsub/May20_MC/MakeTree_NuMI_MC_Nu_Phase2_v09_72_00_03p01_deduped_Merged_flatcaf_ReNuSyst250403_WithTrackSplit_BNBFixedProb.root"

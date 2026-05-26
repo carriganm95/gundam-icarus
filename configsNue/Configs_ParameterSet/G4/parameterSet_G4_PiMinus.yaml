@@ -1,0 +1,26 @@
+name: G4 Piminus Fate
+isEnabled: true
+
+printDialSetsSummary: true
+
+allowPca: true
+
+useEigenDecompInFit: true
+allowEigenDecompWithBounds: true
+
+covarianceMatrixFilePath: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/output_CovMat_G4PiMinusFate.root"
+covarianceMatrixTMatrixD: "G4PiMinusFate/G4PiMinusFate_covariance"
+
+parameterLimits:
+  minValue: 0
+  maxValue: 30
+
+useOnlyOneParameterPerEvent: true
+
+dialSetDefinitions:
+  - name: G4 Piminus Fate dialSetDefinitions
+    applyOnDataSets: ["*"]
+    parametersBinningPath: "binnings/binning_G4PiMinusFate.txt"
+    printDialsSummary: true
+    applyCondition: "[IsData]==0"
+

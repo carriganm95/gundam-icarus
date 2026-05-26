@@ -1,0 +1,14 @@
+# Template
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/TemplateParameters/parameterSet_TrueEleE.yaml"
+
+# GENIE
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/GENIE/parameterSet_GENIE.yaml"
+
+# # G4 Proton Reinteractions
+# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_Proton.yaml"
+
+# # G4 PiPlus Reinteractions
+# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiPlus.yaml"
+
+# # G4 PiMinus Reinteractions
+# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiMinus.yaml"

@@ -1,0 +1,9 @@
+- name: "ICARUSNuMI_nueCCInclusive_true"
+
+  mc:
+
+    tree: "events/NuMIFull/selected"
+    filePathList:
+      - "/exp/icarus/app/users/micarrig/nuESpine/output.root"
+    nominalWeightFormula: "(0.321)" #scaling to 2.5e20POT
+

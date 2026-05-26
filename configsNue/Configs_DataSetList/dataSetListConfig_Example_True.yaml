@@ -1,0 +1,9 @@
+- name: "ICARUSNuMI_1mu2p0pi_true"
+
+  mc:
+
+    tree: "tclones/truthTree"
+    filePathList:
+      - "/exp/icarus/data/users/jsmedley/sbnana_jobsub/May20_MC/MakeTree_NuMI_MC_Nu_Phase2_v09_72_00_03p01_deduped_Merged_flatcaf_ReNuSyst250403_WithTrackSplit_BNBFixedProb.root"
+    nominalWeightFormula: "CVWgt"
+

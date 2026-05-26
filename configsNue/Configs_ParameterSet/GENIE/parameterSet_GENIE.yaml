@@ -1,0 +1,21 @@
+name: Cross section Systematics
+isEnabled: true
+
+printDialSetsSummary: true
+
+# default: false
+releaseFixedParametersOnHesse: true
+# "_parameterDefinitionFilePath_" is set by {"parameterDefinitionFilePath"}, {"covarianceMatrixFilePath"}
+covarianceMatrixFilePath: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/GENIE/gundaminput_geniesyst.root"
+# "_covarianceMatrixTMatrixD_" is set by "covarianceMatrixTMatrixD"
+covarianceMatrixTMatrixD: xsec_cov
+# "_parameterPriorTVectorD_" is set by "parameterPriorTVectorD"
+parameterPriorTVectorD: xsec_param_prior
+# "_parameterNameTObjArray_" is set by "parameterNameTObjArray"
+parameterNameTObjArray: xsec_param_names
+# "_parameterLowerBoundsTVectorD_" is set by "parameterLowerBoundsTVectorD"
+parameterLowerBoundsTVectorD: xsec_param_lb
+# "_parameterUpperBoundsTVectorD_" is set by "parameterUpperBoundsTVectorD"
+parameterUpperBoundsTVectorD: xsec_param_ub
+
+parameterDefinitions: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/GENIE/GENIEDialsDef.yaml"

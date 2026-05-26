@@ -1,0 +1,19 @@
+name: Template Parameter true_leading_electron_energy
+isEnabled: true
+
+printDialSetsSummary: true
+
+nominalStepSize: 0.1
+useOnlyOneParameterPerEvent: true
+
+dialSetDefinitions:
+  - name: Template Parameter TrueEleE dialSetDefinitions
+    # 'applyOnDataSets' can take a list or a wildcard
+    applyOnDataSets: ["*"]
+    parametersBinningPath: "${GUNDAM_CONFIG_DIR}/binnings/binning_TrueEleE.txt"
+   #applyCondition: "[true_category] == 0"
+    printDialsSummary: true
+
+parameterLimits:
+  minValue: 0.
+  maxValue: 3.0

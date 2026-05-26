@@ -1,0 +1,16 @@
+fitSampleList:
+  - name: "signal_DeltaPT"
+    isEnabled: true
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_DeltaPT.txt"
+    selectionCuts: "CutType == 0"
+    dataSets: ["ICARUSNuMI_1mu2p0pi"]
+  - name: "1pNpisideband_DeltaPT"
+    isEnabled: true
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_DeltaPT.txt"
+    selectionCuts: "CutType == 1"
+    dataSets: ["ICARUSNuMI_1mu2p0pi"]
+  - name: "2pNpisideband_DeltaPT"
+    isEnabled: true
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_DeltaPT.txt"
+    selectionCuts: "CutType == 2"
+    dataSets: ["ICARUSNuMI_1mu2p0pi"]

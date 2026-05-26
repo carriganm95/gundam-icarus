@@ -1,0 +1,6 @@
+fitSampleList:
+  - name: "signal_EleE"
+    isEnabled: true
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_EleE.txt"
+    #selectionCuts: "category == 0"
+    dataSets: ["ICARUSNuMI_nueCCInclusive"]

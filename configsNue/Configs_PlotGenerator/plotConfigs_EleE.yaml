@@ -1,0 +1,24 @@
+varDictionnaries:
+  - name: "category"
+    dictionary:
+      - { value: 5, title: "Cosmic", color: 805 } # kMagenta
+      - { value: 4, title: "NC", color: 820 } # kRed
+      - { value: 3, title: "NuCC OOFV", color: 866 } # kRed
+      - { value: 2, title: "NuMu", color: 842 } # kGreen+2
+      - { value: 1, title: "NuE OOFV", color: 800 } # kOrange
+      - { value: 0, title: "Signal", color: 855 } # kOrange
+
+histogramsDefinition:
+  - varToPlot: "reco_leading_electron_energy"
+    splitVars: ["category"]
+    useSampleBinning: true
+    rescaleAsBinWidth: false
+    xTitle: "Reco Leading Electron Energy [MeV]"
+    yTitle: "Slices"
+    xMax: 5000.0
+
+canvasParameters:
+  height: 800
+  width: 1000
+  nbXplots: 1
+  nbYplots: 1

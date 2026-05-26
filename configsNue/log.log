@@ -1,0 +1,1167 @@
+2026.03.09 09:58:06 [32m INFO[0m [90mGundamGreetings[0m: ────────────────────────────────────────────────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mGundamGreetings[0m: Welcome to GUNDAM main fitter v1.9.0f+734-g81aaaa92/HEAD
+2026.03.09 09:58:06 [32m INFO[0m [90mGundamGreetings[0m: ────────────────────────────────────────────────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > gundamFitter is the main interface for the fitter.
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > 
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > It takes a set of inputs through config files and command line argument,
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > and initialize the fitter engine.
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > Once ready, the fitter minimize the likelihood function and
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: > produce a set of plot saved in the output ROOT file.
+
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: Usage: 
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ──────────── Main options ────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: configFile {-c,--config-file}: Specify path to the fitter config file (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: nbThreads {-t,--nb-threads}: Specify nb of parallel threads (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: outputFilePath {-o,--out-file}: Specify the output file (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: outputDir {--out-dir}: Specify the output directory (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: randomSeed {-s,--seed}: Set random seed (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: useDataEntry {--use-data-entry}: Overrides "selectedDataEntry" in dataSet config. Second arg is to select a given dataset (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: injectParameterConfig {--inject-parameters}: Inject parameters defined in the provided config file (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: injectToyParameters {--inject-toy-parameter}: Inject parameters defined in the provided config file (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: appendix {--appendix}: Add appendix to the output file name (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ──────────── Trigger options ────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: dry-run {--dry-run,-d}: Perform the full sequence of initialization, but don't do the actual fit. (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: asimov {-a,--asimov}: Use MC dataset to fill the data histograms (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: skipHesse {--skip-hesse}: Don't perform postfit error evaluation (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: generateOneSigmaPlots {--one-sigma}: Generate one sigma plots (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: lightOutputMode {--light-mode}: Disable plot generation (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ignoreVersionCheck {--ignore-version}: Don't check GUNDAM version with config request (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: scanParameters {--scan}: Enable parameter scan before and after the fit (can provide nSteps) (optional: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: scanLine {--scan-line}: Provide par injector files: start and end point or only end point (start will be prefit) (optional: 2 values)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: toyFit {--toy}: Run a toy fit (optional arg to provide toy index) (optional: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: enablePca {--pca,--enable-pca}: Enable principle component analysis for eigen decomposed parameter sets (optional: 2 values)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ──────────── Runtime options ────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: kickMc {--kick-mc}: Amount to push the starting parameters away from their prior values (default: 0) (optional: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: debugVerbose {--debug}: Enable debug verbose (can provide verbose level arg) (optional: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: usingCacheManager {--cache-manager}: Toggle the usage of the CacheManager (i.e. the GPU) [empty, 'on', or 'off'] (optional: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: usingGpu {--gpu}: Use GPU parallelization (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: overrides {-O,--override}: Add a config override [e.g. /fitterEngineConfig/engineType=mcmc) (expected: N values)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: overrideFiles {-of,--override-files}: Provide config files that will override keys (expected: N values)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ──────────── Debugging options ────────────
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: forceDirect {--cpu}: Force direct calculation of weights (for debugging) (trigger)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: debugMaxNbEventToLoad {-me,--max-events}: Set the maximum number of events to load per dataset (expected: 1 value)
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: ────────────────────────
+
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: Provided arguments: 
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: configFile: { "config_Fitter_FakeData_EleE.yaml" }
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: outputFilePath: { "example.root" }
+
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: {"configFile": "config_Fitter_FakeData_EleE.yaml", "outputFilePath": "example.root"}
+2026.03.09 09:58:06 [33m WARN[0m [90mgundamFitter[0m: Cache::Manager enabled but turned off for job
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: Running the fitter with 1 parallel threads.
+2026.03.09 09:58:06 [32m INFO[0m [90mConfigUtils[0m: Reading config file: config_Fitter_FakeData_EleE.yaml
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: Version check passed: 1.9.0f >= 1.9.0
+2026.03.09 09:58:06 [33m WARN[0m [90mGundamApp[0m: Creating output file: "example.root"...
+2026.03.09 09:58:06 [32m INFO[0m [90mGundamApp[0m: Writing general app info in output file...
+2026.03.09 09:58:06 [32m INFO[0m [90mgundamFitter[0m: FitterEngine setup...
+2026.03.09 09:58:06 [32m INFO[0m [90mFitterEngine[0m: Reading FitterEngine config...
+2026.03.09 09:58:06 [32m INFO[0m [90mParameterSet[0m: Found parameter binning within dialSetDefinition. Defining parameters number...
+2026.03.09 09:58:07 [35mALERT[0m [90mPropagator[0m: Disabling "Cross section Systematics/#0_ZExpPCAB1": no dial definition.
+2026.03.09 09:58:07 [35mALERT[0m [90mPropagator[0m: Disabling "Cross section Systematics/#1_ZExpPCAB2": no dial definition.
+2026.03.09 09:58:07 [35mALERT[0m [90mPropagator[0m: Disabling "Cross section Systematics/#2_ZExpPCAB3": no dial definition.
+2026.03.09 09:58:07 [35mALERT[0m [90mPropagator[0m: Disabling "Cross section Systematics/#3_ZExpPCAB4": no dial definition.
+
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Printing propagator configuration:
+2026.03.09 09:58:07 [32m INFO[0m [90mSampleSet[0m: 1 samples defined.
+2026.03.09 09:58:07 [32m INFO[0m [90mSample[0m: #0, name(signal_EleE), nBins(20)
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: _throwToyParametersWithGlobalCov_ = 0
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: _reThrowParSetIfOutOfPhysical_ = 1
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: 2 parameter sets defined.
+2026.03.09 09:58:07 [32m INFO[0m [90mParameterSet[0m: name(Template Parameter true_leading_electron_energy), nPars(10)
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#0, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#1, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#2, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#3, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#4, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#5, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#6, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#7, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#8, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Template Parameter true_leading_electron_energy/#9, isEnabled=1: value=1, prior=1, stdDev=0.1, bounds=[ 0, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameterSet[0m: name(Cross section Systematics), nPars(52)
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#0_ZExpPCAB1, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#1_ZExpPCAB2, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#2_ZExpPCAB3, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#3_ZExpPCAB4, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#4_RPA_CCQE, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#5_CoulombCCQE, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#6_NormCCMEC, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#7_NormNCMEC, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#8_MaNCEL, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#9_EtaNCEL, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#10_MaCCRES, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#11_MvCCRES, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#12_MaNCRES, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#13_MvNCRES, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#14_NonRESBGvpCC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#15_NonRESBGvpCC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#16_NonRESBGvpNC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#17_NonRESBGvpNC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#18_NonRESBGvnCC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#19_NonRESBGvnCC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#20_NonRESBGvnNC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#21_NonRESBGvnNC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#22_NonRESBGvbarpCC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#23_NonRESBGvbarpCC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#24_NonRESBGvbarpNC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#25_NonRESBGvbarpNC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#26_NonRESBGvbarnCC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#27_NonRESBGvbarnCC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#28_NonRESBGvbarnNC1pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#29_NonRESBGvbarnNC2pi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#30_RDecBR1gamma, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#31_RDecBR1eta, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#32_NormCCCOH, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#33_NormNCCOH, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#34_AhtBY, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#35_BhtBY, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#36_CV1uBY, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#37_CV2uBY, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#38_MFP_pi, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#39_FrCEx_pi, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#40_FrInel_pi, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#41_FrAbs_pi, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#42_FrPiProd_pi, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#43_MFP_N, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#44_FrCEx_N, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#45_FrInel_N, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#46_FrAbs_N, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#47_FrPiProd_N, [41misEnabled=0[0m
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#48_VecFFCCQEshape, isEnabled=1: value=0.005, prior=0.005, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#49_DecayAngMEC, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#50_Theta_Delta2Npi, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mParameter[0m: Cross section Systematics/#51_ThetaDelta2NRad, isEnabled=1: value=0, prior=0, stdDev=1, bounds=[ -3, 3 ]
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Template Parameter true_leading_electron_energy
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#4_RPA_CCQE
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#5_CoulombCCQE
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#6_NormCCMEC
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#7_NormNCMEC
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#8_MaNCEL
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#9_EtaNCEL
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#10_MaCCRES
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#11_MvCCRES
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#12_MaNCRES
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#13_MvNCRES
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#14_NonRESBGvpCC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#15_NonRESBGvpCC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#16_NonRESBGvpNC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#17_NonRESBGvpNC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#18_NonRESBGvnCC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#19_NonRESBGvnCC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#20_NonRESBGvnNC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#21_NonRESBGvnNC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#22_NonRESBGvbarpCC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#23_NonRESBGvbarpCC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#24_NonRESBGvbarpNC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#25_NonRESBGvbarpNC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#26_NonRESBGvbarnCC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#27_NonRESBGvbarnCC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#28_NonRESBGvbarnNC1pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#29_NonRESBGvbarnNC2pi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#30_RDecBR1gamma
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#31_RDecBR1eta
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#32_NormCCCOH
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#33_NormNCCOH
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#34_AhtBY
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#35_BhtBY
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#36_CV1uBY
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#37_CV2uBY
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#48_VecFFCCQEshape
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#49_DecayAngMEC
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#50_Theta_Delta2Npi
+2026.03.09 09:58:07 [32m INFO[0m [90mDialCollection[0m: DialCollection: Cross section Systematics/#51_ThetaDelta2NRad
+
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Convergence monitor will be refreshed every 50000ms.
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: FitterEngine configured.
+2026.03.09 09:58:07 [33m WARN[0m [90mLikelihoodInterface[0m: Initializing LikelihoodInterface...
+2026.03.09 09:58:07 [32m INFO[0m [90mDatasetDefinition[0m: Initializing dataset: "ICARUSNuMI_1mu2p0pi"
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Initialized data dispenser: ICARUSNuMI_1mu2p0pi/Asimov
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Initialized data dispenser: ICARUSNuMI_1mu2p0pi/Asimov
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Initialized data dispenser: ICARUSNuMI_1mu2p0pi/FakeDataFromMC
+2026.03.09 09:58:07 [33m WARN[0m [90mPropagator[0m: Propagator::initializeImpl()
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: 10 enabled parameters in Template Parameter true_leading_electron_energy
+2026.03.09 09:58:07 [32m INFO[0m [90mParameterSet[0m: Stripping the matrix from fixed/disabled parameters...
+2026.03.09 09:58:07 [32m INFO[0m [90mParameterSet[0m: 38 effective parameters were defined in set: Cross section Systematics
+2026.03.09 09:58:07 [32m INFO[0m [90mParameterSet[0m: 38 effective parameters were defined in set: Cross section Systematics
+2026.03.09 09:58:07 [33m WARN[0m [90mParameterSet[0m: Computing inverse of the stripped covariance matrix: 38x38
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: 38 enabled parameters in Cross section Systematics
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: Total number of parameters: 48
+2026.03.09 09:58:07 [32m INFO[0m [90mParametersManager[0m: Building global covariance matrix (48x48)
+2026.03.09 09:58:07 [33m WARN[0m [90mPlotGenerator[0m: PlotGenerator::initializeImpl()
+
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Loading model...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Loading datasets...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loading dataset: ICARUSNuMI_1mu2p0pi/Asimov
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Fetching samples to fill...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Performing event selection...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Event selection...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Opening ROOT files containing events...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m:   /exp/icarus/app/users/micarrig/nuESpine/output.root
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Will read 304 event entries.
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Defining selection formulas...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Read from disk: 0.000000 (  -nanPB/s) / CPU efficiency:  33%
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Performing event selection on ICARUSNuMI_1mu2p0pi/Asimov...   0% (    0 it/s)
+[2F[1K2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Read from disk: 0.000000 (  -nanPB/s) / CPU efficiency:  -1%
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Performing event selection on ICARUSNuMI_1mu2p0pi/Asimov... 100% (    0 it/s)
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Merging thread results...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Freeing up thread buffers...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Events passing selection cuts:
+┌─────────────┬───────────────┬─────────────┐
+│      Sample │ Selection Cut │ # of events │
+├─────────────┼───────────────┼─────────────┤
+│ signal_EleE │               │         304 │
+│       Total │               │         304 │
+└─────────────┴───────────────┴─────────────┘
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Poll every objects for requested variables...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Selecting dial collections...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: DialCollection requests for indexing: { "true_leading_electron_energy", "reco_is_data", "RPA_CCQE", "CoulombCCQE", "NormCCMEC", "NormNCMEC", "MaNCEL", "EtaNCEL", "MaCCRES", "MvCCRES", "MaNCRES", "MvNCRES", "NonRESBGvpCC1pi", "NonRESBGvpCC2pi", "NonRESBGvpNC1pi", "NonRESBGvpNC2pi", "NonRESBGvnCC1pi", "NonRESBGvnCC2pi", "NonRESBGvnNC1pi", "NonRESBGvnNC2pi", "NonRESBGvbarpCC1pi", "NonRESBGvbarpCC2pi", "NonRESBGvbarpNC1pi", "NonRESBGvbarpNC2pi", "NonRESBGvbarnCC1pi", "NonRESBGvbarnCC2pi", "NonRESBGvbarnNC1pi", "NonRESBGvbarnNC2pi", "RDecBR1gamma", "RDecBR1eta", "NormCCCOH", "NormNCCOH", "AhtBY", "BhtBY", "CV1uBY", "CV2uBY", "VecFFCCQEshape", "DecayAngMEC", "Theta_Delta2Npi", "ThetaDelta2NRad" }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Samples variable request for indexing: { "reco_leading_electron_energy" }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: PlotGenerator variable request for storage: { }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Additional var requests for storage:{ }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Vars requested for indexing: { "true_leading_electron_energy", "reco_is_data", "RPA_CCQE", "CoulombCCQE", "NormCCMEC", "NormNCMEC", "MaNCEL", "EtaNCEL", "MaCCRES", "MvCCRES", "MaNCRES", "MvNCRES", "NonRESBGvpCC1pi", "NonRESBGvpCC2pi", "NonRESBGvpNC1pi", "NonRESBGvpNC2pi", "NonRESBGvnCC1pi", "NonRESBGvnCC2pi", "NonRESBGvnNC1pi", "NonRESBGvnNC2pi", "NonRESBGvbarpCC1pi", "NonRESBGvbarpCC2pi", "NonRESBGvbarpNC1pi", "NonRESBGvbarpNC2pi", "NonRESBGvbarnCC1pi", "NonRESBGvbarnCC2pi", "NonRESBGvbarnNC1pi", "NonRESBGvbarnNC2pi", "RDecBR1gamma", "RDecBR1eta", "NormCCCOH", "NormNCCOH", "AhtBY", "BhtBY", "CV1uBY", "CV2uBY", "VecFFCCQEshape", "DecayAngMEC", "Theta_Delta2Npi", "ThetaDelta2NRad", "reco_leading_electron_energy" }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Vars requested for storage: { }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Pre-allocating memory...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reserving event memory...
+2026.03.09 09:58:07 [32m INFO[0m [90mSample[0m: Creating 304 event slots for sample:signal_EleE
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Filling var index cache for bin edges...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Creating slots for event-by-event dials...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#4_RPA_CCQE: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#5_CoulombCCQE: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#6_NormCCMEC: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#7_NormNCMEC: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#8_MaNCEL: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#9_EtaNCEL: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#10_MaCCRES: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#11_MvCCRES: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#12_MaNCRES: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#13_MvNCRES: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#14_NonRESBGvpCC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#15_NonRESBGvpCC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#16_NonRESBGvpNC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#17_NonRESBGvpNC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#18_NonRESBGvnCC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#19_NonRESBGvnCC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#20_NonRESBGvnNC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#21_NonRESBGvnNC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#22_NonRESBGvbarpCC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#23_NonRESBGvbarpCC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#24_NonRESBGvbarpNC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#25_NonRESBGvbarpNC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#26_NonRESBGvbarnCC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#27_NonRESBGvbarnCC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#28_NonRESBGvbarnNC1pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#29_NonRESBGvbarnNC2pi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#30_RDecBR1gamma: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#31_RDecBR1eta: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#32_NormCCCOH: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#33_NormNCCOH: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#34_AhtBY: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#35_BhtBY: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#36_CV1uBY: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#37_CV2uBY: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#48_VecFFCCQEshape: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#49_DecayAngMEC: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#50_Theta_Delta2Npi: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m:   Cross section Systematics/#51_ThetaDelta2NRad: adding 304 (was 0) Spline slots
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Creating 304 event cache slots.
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Reading dataset and loading...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Nominal weight: "((1.0))"
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loading and indexing...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Feeding event variables with:
+┌──────────────────────────────┬───────────────────────────────────────┐
+│                     Variable │                              LeafForm │
+├──────────────────────────────┼───────────────────────────────────────┤
+│                 reco_is_data │                 reco_is_data/Double_t │
+│ reco_leading_electron_energy │ reco_leading_electron_energy/Double_t │
+│ true_leading_electron_energy │ true_leading_electron_energy/Double_t │
+│                        [45mAhtBY[0m │                    [45mAhtBY/TClonesArray[0m │
+│                        [45mBhtBY[0m │                    [45mBhtBY/TClonesArray[0m │
+│                       [45mCV1uBY[0m │                   [45mCV1uBY/TClonesArray[0m │
+│                       [45mCV2uBY[0m │                   [45mCV2uBY/TClonesArray[0m │
+│                  [45mCoulombCCQE[0m │              [45mCoulombCCQE/TClonesArray[0m │
+│                  [45mDecayAngMEC[0m │              [45mDecayAngMEC/TClonesArray[0m │
+│                      [45mEtaNCEL[0m │                  [45mEtaNCEL/TClonesArray[0m │
+│                      [45mMaCCRES[0m │                  [45mMaCCRES/TClonesArray[0m │
+│                       [45mMaNCEL[0m │                   [45mMaNCEL/TClonesArray[0m │
+│                      [45mMaNCRES[0m │                  [45mMaNCRES/TClonesArray[0m │
+│                      [45mMvCCRES[0m │                  [45mMvCCRES/TClonesArray[0m │
+│                      [45mMvNCRES[0m │                  [45mMvNCRES/TClonesArray[0m │
+│           [45mNonRESBGvbarnCC1pi[0m │       [45mNonRESBGvbarnCC1pi/TClonesArray[0m │
+│           [45mNonRESBGvbarnCC2pi[0m │       [45mNonRESBGvbarnCC2pi/TClonesArray[0m │
+│           [45mNonRESBGvbarnNC1pi[0m │       [45mNonRESBGvbarnNC1pi/TClonesArray[0m │
+│           [45mNonRESBGvbarnNC2pi[0m │       [45mNonRESBGvbarnNC2pi/TClonesArray[0m │
+│           [45mNonRESBGvbarpCC1pi[0m │       [45mNonRESBGvbarpCC1pi/TClonesArray[0m │
+│           [45mNonRESBGvbarpCC2pi[0m │       [45mNonRESBGvbarpCC2pi/TClonesArray[0m │
+│           [45mNonRESBGvbarpNC1pi[0m │       [45mNonRESBGvbarpNC1pi/TClonesArray[0m │
+│           [45mNonRESBGvbarpNC2pi[0m │       [45mNonRESBGvbarpNC2pi/TClonesArray[0m │
+│              [45mNonRESBGvnCC1pi[0m │          [45mNonRESBGvnCC1pi/TClonesArray[0m │
+│              [45mNonRESBGvnCC2pi[0m │          [45mNonRESBGvnCC2pi/TClonesArray[0m │
+│              [45mNonRESBGvnNC1pi[0m │          [45mNonRESBGvnNC1pi/TClonesArray[0m │
+│              [45mNonRESBGvnNC2pi[0m │          [45mNonRESBGvnNC2pi/TClonesArray[0m │
+│              [45mNonRESBGvpCC1pi[0m │          [45mNonRESBGvpCC1pi/TClonesArray[0m │
+│              [45mNonRESBGvpCC2pi[0m │          [45mNonRESBGvpCC2pi/TClonesArray[0m │
+│              [45mNonRESBGvpNC1pi[0m │          [45mNonRESBGvpNC1pi/TClonesArray[0m │
+│              [45mNonRESBGvpNC2pi[0m │          [45mNonRESBGvpNC2pi/TClonesArray[0m │
+│                    [45mNormCCCOH[0m │                [45mNormCCCOH/TClonesArray[0m │
+│                    [45mNormCCMEC[0m │                [45mNormCCMEC/TClonesArray[0m │
+│                    [45mNormNCCOH[0m │                [45mNormNCCOH/TClonesArray[0m │
+│                    [45mNormNCMEC[0m │                [45mNormNCMEC/TClonesArray[0m │
+│                   [45mRDecBR1eta[0m │               [45mRDecBR1eta/TClonesArray[0m │
+│                 [45mRDecBR1gamma[0m │             [45mRDecBR1gamma/TClonesArray[0m │
+│                     [45mRPA_CCQE[0m │                 [45mRPA_CCQE/TClonesArray[0m │
+│              [45mThetaDelta2NRad[0m │          [45mThetaDelta2NRad/TClonesArray[0m │
+│              [45mTheta_Delta2Npi[0m │          [45mTheta_Delta2Npi/TClonesArray[0m │
+│               [45mVecFFCCQEshape[0m │           [45mVecFFCCQEshape/TClonesArray[0m │
+└──────────────────────────────┴───────────────────────────────────────┘
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: [44m      [0m -> Variables stored in RAM
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: [45m      [0m -> Dials stored in RAM
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reading from disk: 0.000000 (  -nanPB/s) / CPU efficiency:  50% / RAM: 259.256MB
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Loading and indexing...   0% (    0 it/s)
+[2F[1K2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reading from disk: 2.33413M (70.7312M/s) / CPU efficiency: 100% / RAM: 264.508MB
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Loading and indexing...  67% ( 6212 it/s)
+[2F[1K2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reading from disk: 3.44996M (79.702MB/s) / CPU efficiency: 100% / RAM: 264.508MB
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Loading and indexing... 100% ( 7000 it/s)
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Shrinking lists...
+2026.03.09 09:58:07 [32m INFO[0m [90mSample[0m: signal_EleE: shrinking event list from 304 to 303...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loaded ICARUSNuMI_1mu2p0pi/Asimov
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Resizing dial containers...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Building event dial cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Indexed cache size: 304
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Sorting events in sync with indexed cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Breaking down indexed cache per sample...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Cleaning up the index cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Performing per sample sorting...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Filling up the 303 cache dial with references...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Reference cache has been setup.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Propagating prior parameters on events...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Filling up model sample bin caches...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Updating sample per bin event lists...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Filling up model sample histograms...
+
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Breaking down samples...
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Nb of event affected by parameters:
+┌────────────────────────────────────────────────────┬─────────────┐
+│                                          Parameter │ All samples │
+├────────────────────────────────────────────────────┼─────────────┤
+│ [0mTemplate Parameter true_leading_electron_energy/#0[0m │          [0m44[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#1[0m │          [0m25[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#2[0m │          [0m37[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#3[0m │          [0m38[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#4[0m │          [0m26[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#5[0m │          [0m40[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#6[0m │          [0m25[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#7[0m │          [0m20[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#8[0m │          [0m20[0m │
+│ [0mTemplate Parameter true_leading_electron_energy/#9[0m │          [0m27[0m │
+│              [0mCross section Systematics/#4_RPA_CCQE[0m │         [0m120[0m │
+│           [0mCross section Systematics/#5_CoulombCCQE[0m │         [0m120[0m │
+│             [0mCross section Systematics/#6_NormCCMEC[0m │          [0m44[0m │
+│             [41mCross section Systematics/#7_NormNCMEC[0m │           [41m0[0m │
+│                [41mCross section Systematics/#8_MaNCEL[0m │           [41m0[0m │
+│               [41mCross section Systematics/#9_EtaNCEL[0m │           [41m0[0m │
+│              [0mCross section Systematics/#10_MaCCRES[0m │          [0m78[0m │
+│              [0mCross section Systematics/#11_MvCCRES[0m │          [0m78[0m │
+│              [0mCross section Systematics/#12_MaNCRES[0m │           [0m9[0m │
+│              [0mCross section Systematics/#13_MvNCRES[0m │           [0m9[0m │
+│      [41mCross section Systematics/#14_NonRESBGvpCC1pi[0m │           [41m0[0m │
+│      [0mCross section Systematics/#15_NonRESBGvpCC2pi[0m │           [0m6[0m │
+│      [41mCross section Systematics/#16_NonRESBGvpNC1pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#17_NonRESBGvpNC2pi[0m │           [41m0[0m │
+│      [0mCross section Systematics/#18_NonRESBGvnCC1pi[0m │           [0m4[0m │
+│      [0mCross section Systematics/#19_NonRESBGvnCC2pi[0m │           [0m5[0m │
+│      [0mCross section Systematics/#20_NonRESBGvnNC1pi[0m │           [0m2[0m │
+│      [0mCross section Systematics/#21_NonRESBGvnNC2pi[0m │           [0m3[0m │
+│   [41mCross section Systematics/#22_NonRESBGvbarpCC1pi[0m │           [41m0[0m │
+│   [0mCross section Systematics/#23_NonRESBGvbarpCC2pi[0m │           [0m3[0m │
+│   [41mCross section Systematics/#24_NonRESBGvbarpNC1pi[0m │           [41m0[0m │
+│   [0mCross section Systematics/#25_NonRESBGvbarpNC2pi[0m │           [0m1[0m │
+│   [41mCross section Systematics/#26_NonRESBGvbarnCC1pi[0m │           [41m0[0m │
+│   [0mCross section Systematics/#27_NonRESBGvbarnCC2pi[0m │           [0m1[0m │
+│   [41mCross section Systematics/#28_NonRESBGvbarnNC1pi[0m │           [41m0[0m │
+│   [0mCross section Systematics/#29_NonRESBGvbarnNC2pi[0m │           [0m1[0m │
+│         [0mCross section Systematics/#30_RDecBR1gamma[0m │          [0m19[0m │
+│           [0mCross section Systematics/#31_RDecBR1eta[0m │          [0m13[0m │
+│            [0mCross section Systematics/#32_NormCCCOH[0m │           [0m2[0m │
+│            [0mCross section Systematics/#33_NormNCCOH[0m │           [0m1[0m │
+│                [0mCross section Systematics/#34_AhtBY[0m │          [0m18[0m │
+│                [0mCross section Systematics/#35_BhtBY[0m │          [0m18[0m │
+│               [0mCross section Systematics/#36_CV1uBY[0m │          [0m11[0m │
+│               [0mCross section Systematics/#37_CV2uBY[0m │          [0m11[0m │
+│       [0mCross section Systematics/#48_VecFFCCQEshape[0m │         [0m303[0m │
+│          [0mCross section Systematics/#49_DecayAngMEC[0m │         [0m303[0m │
+│      [0mCross section Systematics/#50_Theta_Delta2Npi[0m │         [0m303[0m │
+│      [0mCross section Systematics/#51_ThetaDelta2NRad[0m │         [0m303[0m │
+└────────────────────────────────────────────────────┴─────────────┘
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Printing 5 events...
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #0{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(0), sample(0), bin(5)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(0)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { Norm: input({ Template Parameter true_leading_electron_energy/#2=1 }) applyOn(true_leading_electron_energy: [350, 500[) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#10_MaCCRES=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#11_MvCCRES=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#48_VecFFCCQEshape=0.005, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=0 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#49_DecayAngMEC=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=2.4803e-43 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#50_Theta_Delta2Npi=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=2.4803e-43 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#51_ThetaDelta2NRad=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=4.62428e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #1{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(1), sample(0), bin(12)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(0)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { Norm: input({ Template Parameter true_leading_electron_energy/#6=1 }) applyOn(true_leading_electron_energy: [1000, 1250[) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#4_RPA_CCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#5_CoulombCCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#48_VecFFCCQEshape=0.005, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=0 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#49_DecayAngMEC=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#50_Theta_Delta2Npi=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#51_ThetaDelta2NRad=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #2{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(2), sample(0), bin(16)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(0)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { Norm: input({ Template Parameter true_leading_electron_energy/#0=1 }) applyOn(true_leading_electron_energy: [0, 225[) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#34_AhtBY=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#35_BhtBY=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#36_CV1uBY=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#37_CV2uBY=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#48_VecFFCCQEshape=0.005, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=0 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#49_DecayAngMEC=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#50_Theta_Delta2Npi=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#51_ThetaDelta2NRad=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #3{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(3), sample(0), bin(4)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(0)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { Norm: input({ Template Parameter true_leading_electron_energy/#3=1 }) applyOn(true_leading_electron_energy: [500, 650[) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#4_RPA_CCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#5_CoulombCCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#48_VecFFCCQEshape=0.005, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=0 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#49_DecayAngMEC=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#50_Theta_Delta2Npi=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#51_ThetaDelta2NRad=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #4{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(4), sample(0), bin(6)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(0)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { Norm: input({ Template Parameter true_leading_electron_energy/#3=1 }) applyOn(true_leading_electron_energy: [500, 650[) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#4_RPA_CCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#5_CoulombCCQE=0 }) supervisor(minResponse=0) response=1 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#48_VecFFCCQEshape=0.005, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=0 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#49_DecayAngMEC=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#50_Theta_Delta2Npi=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:     { UniformSpline: input({ Cross section Systematics/#51_ThetaDelta2NRad=0, mirrorLow=-1, mirrorUp=1 }) supervisor(minResponse=0) response=6.86636e-44 }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Loading data...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Loading datasets...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Fetching toy entry "FakeDataFromMC" for dataset: ICARUSNuMI_1mu2p0pi
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loading dataset: ICARUSNuMI_1mu2p0pi/FakeDataFromMC
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Fetching samples to fill...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Performing event selection...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Event selection...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Opening ROOT files containing events...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m:   /exp/icarus/app/users/micarrig/nuESpine/output.root
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Will read 304 event entries.
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Defining selection formulas...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Read from disk: 0.000000 (  -nanPB/s) / CPU efficiency: 200%
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Performing event selection on ICARUSNuMI_1mu2p0pi/FakeDataFromMC...   0% (    0 it/s)
+[2F[1K2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Read from disk: 0.000000 (  -nanPB/s) / CPU efficiency:  -1%
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Performing event selection on ICARUSNuMI_1mu2p0pi/FakeDataFromMC... 100% (    0 it/s)
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Merging thread results...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Freeing up thread buffers...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Events passing selection cuts:
+┌─────────────┬───────────────┬─────────────┐
+│      Sample │ Selection Cut │ # of events │
+├─────────────┼───────────────┼─────────────┤
+│ signal_EleE │               │         304 │
+│       Total │               │         304 │
+└─────────────┴───────────────┴─────────────┘
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Poll every objects for requested variables...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Samples variable request for indexing: { "reco_leading_electron_energy" }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: PlotGenerator variable request for storage: { }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Additional var requests for storage:{ }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Vars requested for indexing: { "reco_leading_electron_energy" }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Vars requested for storage: { }
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Pre-allocating memory...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reserving event memory...
+2026.03.09 09:58:07 [32m INFO[0m [90mSample[0m: Creating 304 event slots for sample:signal_EleE
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Filling var index cache for bin edges...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Creating slots for event-by-event dials...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Creating 304 event cache slots.
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Reading dataset and loading...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Nominal weight: "((1.0))"
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loading and indexing...
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Feeding event variables with:
+┌──────────────────────────────┬───────────────────────────────────────┐
+│                     Variable │                              LeafForm │
+├──────────────────────────────┼───────────────────────────────────────┤
+│ reco_leading_electron_energy │ reco_leading_electron_energy/Double_t │
+└──────────────────────────────┴───────────────────────────────────────┘
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: [44m      [0m -> Variables stored in RAM
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: [45m      [0m -> Dials stored in RAM
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reading from disk: 0.000000 (  -nanPB/s) / CPU efficiency:   0% / RAM: 264.604MB
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Loading and indexing...   0% (    0 it/s)
+[2F[1K2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Reading from disk:  2.424KB (    infB/s) / CPU efficiency:  -1% / RAM: 264.604MB
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Loading and indexing... 100% (    0 it/s)
+2026.03.09 09:58:07 [32m INFO[0m [90mDataDispenser[0m: Shrinking lists...
+2026.03.09 09:58:07 [32m INFO[0m [90mSample[0m: signal_EleE: shrinking event list from 304 to 303...
+2026.03.09 09:58:07 [33m WARN[0m [90mDataDispenser[0m: Loaded ICARUSNuMI_1mu2p0pi/FakeDataFromMC
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Resizing dial containers...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Building event dial cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Indexed cache size: 304
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Sorting events in sync with indexed cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Breaking down indexed cache per sample...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Cleaning up the index cache...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m:   Performing per sample sorting...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Filling up the 303 cache dial with references...
+2026.03.09 09:58:07 [32m INFO[0m [90mEventDialCache[0m: Reference cache has been setup.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Propagating prior parameters on the initially loaded events...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Sample breakdown prior to the throwing:
+┌─────────────┬───────────────────┬───────────────────────┐
+│      Sample │ # of binned event │ total rate (weighted) │
+├─────────────┼───────────────────┼───────────────────────┤
+│ signal_EleE │               303 │                   303 │
+└─────────────┴───────────────────┴───────────────────────┘
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Toy events:
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: propagator_.getDebugPrintLoadedEventsNbPerSample() = 5
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Event #0{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Indices{dataset(0), entry(0), sample(0), bin(5)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Event #1{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Indices{dataset(0), entry(1), sample(0), bin(12)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Event #2{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Indices{dataset(0), entry(2), sample(0), bin(16)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Event #3{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Indices{dataset(0), entry(3), sample(0), bin(4)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: Event #4{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Indices{dataset(0), entry(4), sample(0), bin(6)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [33m WARN[0m [90mLikelihoodInterface[0m: Throwing toy parameters according to covariance matrices...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Propagating parameters on events...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Filling up data sample bin caches...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Updating sample per bin event lists...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Filling up data sample histograms...
+
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Breaking down samples...
+2026.03.09 09:58:07 [32m INFO[0m [90mPropagator[0m: Nb of event affected by parameters:
+┌────────────────────────────────────────────────────┬─────────────┐
+│                                          Parameter │ All samples │
+├────────────────────────────────────────────────────┼─────────────┤
+│ [41mTemplate Parameter true_leading_electron_energy/#0[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#1[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#2[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#3[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#4[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#5[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#6[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#7[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#8[0m │           [41m0[0m │
+│ [41mTemplate Parameter true_leading_electron_energy/#9[0m │           [41m0[0m │
+│              [41mCross section Systematics/#4_RPA_CCQE[0m │           [41m0[0m │
+│           [41mCross section Systematics/#5_CoulombCCQE[0m │           [41m0[0m │
+│             [41mCross section Systematics/#6_NormCCMEC[0m │           [41m0[0m │
+│             [41mCross section Systematics/#7_NormNCMEC[0m │           [41m0[0m │
+│                [41mCross section Systematics/#8_MaNCEL[0m │           [41m0[0m │
+│               [41mCross section Systematics/#9_EtaNCEL[0m │           [41m0[0m │
+│              [41mCross section Systematics/#10_MaCCRES[0m │           [41m0[0m │
+│              [41mCross section Systematics/#11_MvCCRES[0m │           [41m0[0m │
+│              [41mCross section Systematics/#12_MaNCRES[0m │           [41m0[0m │
+│              [41mCross section Systematics/#13_MvNCRES[0m │           [41m0[0m │
+│      [41mCross section Systematics/#14_NonRESBGvpCC1pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#15_NonRESBGvpCC2pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#16_NonRESBGvpNC1pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#17_NonRESBGvpNC2pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#18_NonRESBGvnCC1pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#19_NonRESBGvnCC2pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#20_NonRESBGvnNC1pi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#21_NonRESBGvnNC2pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#22_NonRESBGvbarpCC1pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#23_NonRESBGvbarpCC2pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#24_NonRESBGvbarpNC1pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#25_NonRESBGvbarpNC2pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#26_NonRESBGvbarnCC1pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#27_NonRESBGvbarnCC2pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#28_NonRESBGvbarnNC1pi[0m │           [41m0[0m │
+│   [41mCross section Systematics/#29_NonRESBGvbarnNC2pi[0m │           [41m0[0m │
+│         [41mCross section Systematics/#30_RDecBR1gamma[0m │           [41m0[0m │
+│           [41mCross section Systematics/#31_RDecBR1eta[0m │           [41m0[0m │
+│            [41mCross section Systematics/#32_NormCCCOH[0m │           [41m0[0m │
+│            [41mCross section Systematics/#33_NormNCCOH[0m │           [41m0[0m │
+│                [41mCross section Systematics/#34_AhtBY[0m │           [41m0[0m │
+│                [41mCross section Systematics/#35_BhtBY[0m │           [41m0[0m │
+│               [41mCross section Systematics/#36_CV1uBY[0m │           [41m0[0m │
+│               [41mCross section Systematics/#37_CV2uBY[0m │           [41m0[0m │
+│       [41mCross section Systematics/#48_VecFFCCQEshape[0m │           [41m0[0m │
+│          [41mCross section Systematics/#49_DecayAngMEC[0m │           [41m0[0m │
+│      [41mCross section Systematics/#50_Theta_Delta2Npi[0m │           [41m0[0m │
+│      [41mCross section Systematics/#51_ThetaDelta2NRad[0m │           [41m0[0m │
+└────────────────────────────────────────────────────┴─────────────┘
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Printing 5 events...
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #0{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(0), sample(0), bin(5)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #1{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(1), sample(0), bin(12)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #2{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(2), sample(0), bin(16)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #3{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(3), sample(0), bin(4)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: Event #4{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Indices{dataset(0), entry(4), sample(0), bin(6)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Weights{base(1), current(1)}
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Variables{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   Dials{
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m:   }
+2026.03.09 09:58:07 [94mDEBUG[0m [90mPropagator[0m: }
+
+2026.03.09 09:58:07 [33m WARN[0m [90mPlotGenerator[0m: PlotGenerator::defineHistogramHolders()
+2026.03.09 09:58:07 [32m INFO[0m [90mPlotGenerator[0m: Defining histogram holders...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Samples breakdown:
+┌─────────────┬──────────────────┬─────────────────┬───────┬──────────────────┬─────────────────┬───────┐
+│      Sample │ Model (# binned) │ Data (# binned) │ Diff. │ Model (weighted) │ Data (weighted) │ Diff. │
+├─────────────┼──────────────────┼─────────────────┼───────┼──────────────────┼─────────────────┼───────┤
+│ signal_EleE │              303 │             303 │     0 │     6.30531e-112 │             303 │   303 │
+└─────────────┴──────────────────┴─────────────────┴───────┴──────────────────┴─────────────────┴───────┘
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Fetching the effective number of fit parameters...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Fetching the number of bins parameters...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Move back MC parameters to prior...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: First evaluation of the LLH at the nominal value...
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Total likelihood = inf
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Stat likelihood = inf = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m:   signal_EleE: inf
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Penalty likelihood = 0 = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m:   TempWarning in <TBranch::TBranch>: No name was given to the leaf number '0' in the leaflist of the branch 'Template_Parameter_true_leading_electron_energy'.
+late Parameter true_leading_electron_energy: 0, 
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m:   Cross section Systematics: 0
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: LikelihoodInterface initialized.
+2026.03.09 09:58:07 [33m WARN[0m [90mParameterScanner[0m: Initializing ParameterScanner...
+2026.03.09 09:58:07 [33m WARN[0m [90mParameterScanner[0m: ParameterScanner initialized.
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Writing throws in TTree...
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: PCA is enabled. Polling parameters...
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Using PCA method: DeltaChi2Threshold / threshold = 0.0001
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Reference stat log-likelihood for PCA: inf
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: PCA disabled on Template Parameter true_leading_electron_energy. Skipping...
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: PCA disabled on Cross section Systematics. Skipping...
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Initializing MinimizerBase...
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Nb minimizer parameters: 48
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: MinimizerBase initialized.
+2026.03.09 09:58:07 [33m WARN[0m [90mRootMinimizer[0m: Initializing RootMinimizer...
+2026.03.09 09:58:07 [32m INFO[0m [90mRootMinimizer[0m: Defining minimizer as: Minuit2/Migrad
+2026.03.09 09:58:07 [33m WARN[0m [90mRootMinimizer[0m: RootMinimizer initialized.
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Writing propagator objects...
+2026.03.09 09:58:07 [32m INFO[0m [90mRootMinimizer[0m: Saving minimizer settings...
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing sample events data.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing model sample events...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing data sample events...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing event rates.
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing model event rates...
+2026.03.09 09:58:07 [32m INFO[0m [90mLikelihoodInterface[0m: Writing data event rates...
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: Saving all objects to disk...
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: FitterEngine::fit()
+2026.03.09 09:58:07 [33m WARN[0m [90mFitterEngine[0m: Pre-fit likelihood state:
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Total likelihood = inf
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Stat likelihood = inf = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m:   signal_EleE: inf
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Penalty likelihood = 0 = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m:   Template Parameter true_leading_electron_energy: 0, 
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m:   Cross section Systematics: 0
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mFitterEngine[0m: Minimizing LLH...
+
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ──────────────────────────────
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Summary of the fit parameters:
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ──────────────────────────────
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Template Parameter true_leading_electron_energy: 10 parameters
+┌───────┬──────────┬──────────┬──────────┬──────────┬──────────┬────────────┐
+│ Title │ Starting │    Prior │   StdDev │      Min │      Max │     Status │
+├───────┼──────────┼──────────┼──────────┼──────────┼──────────┼────────────┤
+│    [1;94m#0[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#1[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#2[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#3[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#4[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#5[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#6[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#7[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#8[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+│    [1;94m#9[0m │ [1;94m1.000000[0m │ [1;94m1.000000[0m │ [1;94m0.100000[0m │ [1;94m0.000000[0m │ [1;94m3.000000[0m │ [1;94mFlat Prior[0m │
+└───────┴──────────┴──────────┴──────────┴──────────┴──────────┴────────────┘
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Cross section Systematics: 52 parameters
+┌────────────────────────┬──────────┬──────────┬──────────┬───────────┬──────────┬────────────────┐
+│                  Title │ Starting │    Prior │   StdDev │       Min │      Max │         Status │
+├────────────────────────┼──────────┼──────────┼──────────┼───────────┼──────────┼────────────────┤
+│            #4_RPA_CCQE │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│         #5_CoulombCCQE │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│           #6_NormCCMEC │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│           #7_NormNCMEC │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│              #8_MaNCEL │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│             #9_EtaNCEL │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│            #10_MaCCRES │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│            #11_MvCCRES │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│            #12_MaNCRES │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│            #13_MvNCRES │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #14_NonRESBGvpCC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #15_NonRESBGvpCC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #16_NonRESBGvpNC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #17_NonRESBGvpNC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #18_NonRESBGvnCC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #19_NonRESBGvnCC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #20_NonRESBGvnNC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #21_NonRESBGvnNC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #22_NonRESBGvbarpCC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #23_NonRESBGvbarpCC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #24_NonRESBGvbarpNC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #25_NonRESBGvbarpNC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #26_NonRESBGvbarnCC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #27_NonRESBGvbarnCC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #28_NonRESBGvbarnNC1pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│ #29_NonRESBGvbarnNC2pi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│       #30_RDecBR1gamma │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│         #31_RDecBR1eta │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│          #32_NormCCCOH │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│          #33_NormNCCOH │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│              #34_AhtBY │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│              #35_BhtBY │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│             #36_CV1uBY │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│             #37_CV2uBY │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│     #48_VecFFCCQEshape │ 0.005000 │ 0.005000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│        #49_DecayAngMEC │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #50_Theta_Delta2Npi │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+│    #51_ThetaDelta2NRad │ 0.000000 │ 0.000000 │ 1.000000 │ -3.000000 │ 3.000000 │ Gaussian Prior │
+└────────────────────────┴──────────┴──────────┴──────────┴───────────┴──────────┴────────────────┘
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Initial likelihood state:
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Total likelihood = inf
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Stat likelihood = inf = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m:   signal_EleE: inf
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Penalty likelihood = 0 = sum of: { 
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m:   Template Parameter true_leading_electron_energy: 0, 
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m:   Cross section Systematics: 0
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: }
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of defined parameters: 62
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of fit parameters: 48
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of fixed parameters: 14
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of free parameters: 10
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of fit bins: 20
+2026.03.09 09:58:07 [32m INFO[0m [90mMinimizerBase[0m: Number of degree of freedom: 10
+
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ─────────────────────
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Calling minimize()...
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ─────────────────────
+2026.03.09 09:58:07 [32m INFO[0m [90mRootMinimizer[0m: Fit call offset: 0
+2026.03.09 09:58:07 [33m WARN[0m [90mRootMinimizer[0m: Running simplex algo before the minimizer
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: [2K[18F
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: MinimizerBase::evalFit(): call #1
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Running Simplex...
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: RAM: 269.56MB / CPU: 34.8993% (34.8993% efficiency)
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: Avg log-likelihood computation time: 557.502us
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ┌───────┬────────────┬───────────┬─────────────────┬─────────────────┐
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │       │ Propagator │ Re-weight │ histograms fill │ Minuit2/Simplex │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ├───────┼────────────┼───────────┼─────────────────┼─────────────────┤
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │ Speed │   inf it/s │ 15.6188us │         1.277us │             0us │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: └───────┴────────────┴───────────┴─────────────────┴─────────────────┘
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ┌────────────┬───────────────┬──────────────────┐
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │ Likelihood │ Current Value │ Avg. Slope /call │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: ├────────────┼───────────────┼──────────────────┤
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │  Total/dof │           inf │            -nanP │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │      Total │           inf │            -nanP │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │       Stat │           inf │            -nanP │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: │       Syst │ 0.0000000e+00 │            -nanP │
+2026.03.09 09:58:07 [33m WARN[0m [90mMinimizerBase[0m: └────────────┴───────────────┴──────────────────┘
+[1F
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 0. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 1. predVal = 0, dataVal = 0. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 2. predVal = 0, dataVal = 21. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 3. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 4. predVal = 0, dataVal = 26. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 5. predVal = 0, dataVal = 18. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 6. predVal = 0, dataVal = 22. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 7. predVal = 0, dataVal = 19. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 8. predVal = 0, dataVal = 12. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 9. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 11. predVal = 0, dataVal = 20. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 12. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 13. predVal = 0, dataVal = 11. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 14. predVal = 0, dataVal = 10. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 15. predVal = 0, dataVal = 16. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 16. predVal = 0, dataVal = 14. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 17. predVal = 0, dataVal = 8. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 18. predVal = 0, dataVal = 30. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [35mALERT[0m [90mPoissonLogLikelihood[0m: Zero MC events in bin 19. predVal = 0, dataVal = 6. Setting llh = +inf for this bin.
+2026.03.09 09:58:07 [31mERROR[0m [90mDialInputBuffer[0m: NaN while evaluating input buffer of #0
+Backtrace of 20 calls
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamDialDictionary.so(_ZN11GundamUtils9BacktraceIcSt11char_traitsIcEEERSt13basic_ostreamIT_T0_ES7_+0x22) [0x7f4ada951db2]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamDialDictionary.so(_ZN15DialInputBuffer6updateEv+0x2b7) [0x7f4ada94fc77]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamDialDictionary.so(_ZN14DialCollection18updateInputBuffersEv+0x2c) [0x7f4ada96402c]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamPropagator.so(_ZN10Propagator15updateDialStateEv+0x2f) [0x7f4adab7d26f]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamPropagator.so(_ZN10Propagator14reweightEventsEv+0xd6) [0x7f4adab7d896]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamPropagator.so(_ZN10Propagator19propagateParametersEv+0x2a) [0x7f4adab7dbea]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamStatisticalInference.so(_ZN19LikelihoodInterface26propagateAndEvalLikelihoodEv+0x10) [0x7f4adacec5a0]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamFitter.so(_ZN13MinimizerBase7evalFitEPKd+0x121) [0x7f4adadd1591]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZNK4ROOT7Minuit29MnUserFcnclERKNS0_8LAVectorE+0x11b) [0x7f4ad8bb9c7b]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZNK4ROOT7Minuit229Numerical2PGradientCalculatorclERKNS0_17MinimumParametersERKNS0_16FunctionGradientE+0xaf3) [0x7f4ad8bc4ec3]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZNK4ROOT7Minuit229Numerical2PGradientCalculatorclERKNS0_17MinimumParametersE+0x63) [0x7f4ad8bc3f13]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZNK4ROOT7Minuit215MnSeedGeneratorclERKNS0_5MnFcnERKNS0_18GradientCalculatorERKNS0_20MnUserParameterStateERKNS0_10MnStrategyE+0x108) [0x7f4ad8bb6378]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZNK4ROOT7Minuit224ModularFunctionMinimizer8MinimizeERKNS0_7FCNBaseERKNS0_20MnUserParameterStateERKNS0_10MnStrategyEjd+0xc5) [0x7f4ad8bc03d5]
+/cvmfs/larsoft.opensciencegrid.org/spack-v0.22.0-fermi/opt/spack/linux-almalinux9-x86_64_v3/gcc-12.2.0/root-6.28.12-hljl7gyomotoqht2uzvhnf73337jq67q/lib/root/libMinuit2.so.6.28(_ZN4ROOT7Minuit216Minuit2Minimizer8MinimizeEv+0x81d) [0x7f4ad8b824dd]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamFitter.so(_ZN13RootMinimizer8minimizeEv+0x310) [0x7f4adae12a70]
+/nashome/m/micarrig/icarus/gundam/gundam-icarus/GUNDAM-1.9.X/Install//gundam/lib/libGundamFitter.so(_ZN12FitterEngine3fitEv+0xd04) [0x7f4adad9cd64]
+gundamFitter() [0x41e1d7]
+/lib64/libc.so.6(+0x2a610) [0x7f4ad842a610]
+/lib64/libc.so.6(__libc_start_main+0x80) [0x7f4ad842a6c0]
+gundamFitter() [0x41f675]
+
