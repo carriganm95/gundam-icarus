@@ -1,0 +1,95 @@
+- parameterName: "induction_high"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "induction_high"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "induction_low"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "induction_low"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "coherent_high"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "coherent_high"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "coherent_low"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "coherent_low"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "intrinsic_high"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "intrinsic_high"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "intrinsic_low"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "intrinsic_low"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "lifetime_high"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "lifetime_high"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "lifetime_low"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "lifetime_low"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "scintillation"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "scintillation"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "wire_gap"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "wire_gap"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "yz_uniformity"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "yz_uniformity"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "recombination"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "recombination"
+      applyCondition: "[reco_is_data]==0"

@@ -1,0 +1,216 @@
+- parameterName: "hysyst_beam_horn_2kA"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horn_2kA_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horn1_x_3mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horn1_x_3mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horn1_y_3mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horn1_y_3mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_spot_1_3mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_spot_1_3mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_spot_1_7mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_spot_1_7mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horn2_x_3mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horn2_x_3mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "numi_Horns_water"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "numi_Horns_water"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horn2_y_3mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horn2_y_3mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horns_0mm_water"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horns_0mm_water_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_horns_2mm_water"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_horns_2mm_water_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_Beam_shift_y_1mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_Beam_shift_y_1mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_beam_Target_z_7mm"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_beam_Target_z_7mm_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_0"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_0_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_1"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_1_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_2"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_2_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_3"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_3_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_4"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_4_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_5"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_5_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_6"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_6_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_7"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_7_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_8"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_8_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_9"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_9_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_10"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_10_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_11"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_11_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_12"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_12_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_13"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_13_v"
+      applyCondition: "[reco_is_data]==0"
+
+- parameterName: "hysyst_hpc_14"
+  isEnabled: true
+  dialSetDefinitions:
+    - dialType: Spline
+      minimumSplineResponse: 0
+      dialLeafName: "hysyst_hpc_14_v"
+      applyCondition: "[reco_is_data]==0"
+

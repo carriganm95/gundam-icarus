@@ -8,20 +8,24 @@
   showSelectedEventCount: true
 
   mc:
-    tree: "events/NuMIFull/selected"
+    tree: "events/NuMIFull/all_true"
     filePathList:
-      - "/exp/icarus/app/users/micarrig/nuESpine/output.root"
+      - "/exp/icarus/data/users/micarrig/gundam_v27.root"
     # - MC POT: 1.0900766e+21
     # - POT to normalize: 2.500616E+20
     # - Flux weight
     #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
     #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
-    nominalWeightFormula: "(true_interaction_mode == 0) ? (1.2) * (0.321) : (0.321)" #scaling to 2.5e20
+
+    # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+    nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
 
   data:
     # data from the same MC
     - name: "FakeDataFromMC"
-      tree: "events/NuMIFull/selected"
-      nominalWeightFormula: "(0.321)" #scaling to 2.5e20
+      tree: "events/NuMIFull/all_true"
+      # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+      # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+      nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
       filePathList:
-        - "/exp/icarus/app/users/micarrig/nuESpine/output.root"
+        - "/exp/icarus/data/users/micarrig/gundam_v27.root"

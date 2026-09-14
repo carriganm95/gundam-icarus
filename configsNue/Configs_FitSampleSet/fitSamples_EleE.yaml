@@ -3,4 +3,5 @@ fitSampleList:
     isEnabled: true
     binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_EleE.txt"
     #selectionCuts: "category == 0"
+    selectionCuts: "true_fiducial_cut == 1"
     dataSets: ["ICARUSNuMI_nueCCInclusive"]

@@ -2,8 +2,8 @@
 
   mc:
 
-    tree: "events/NuMIFull/selected"
+    tree: "events/NuMIFull/all_true"
     filePathList:
-      - "/exp/icarus/app/users/micarrig/nuESpine/output.root"
-    nominalWeightFormula: "(0.321)" #scaling to 2.5e20POT
+      - "/exp/icarus/data/users/micarrig/gundam_v27.root"
+    nominalWeightFormula: "(0.35231940)" #scaling to 2.5e20POT
 

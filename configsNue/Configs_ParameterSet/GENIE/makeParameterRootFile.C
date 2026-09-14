@@ -116,10 +116,10 @@ std::vector<std::string> GetGENIEMorphKnobNames(){
 
 std::vector<std::string> GetGENIEMultisigmaKnobNames(){
   return {
-"ZExpA1CCQE",
-"ZExpA2CCQE",
-"ZExpA3CCQE",
-"ZExpA4CCQE",
+"ZExpPCAB1CCQE",
+"ZExpPCAB2CCQE",
+"ZExpPCAB3CCQE",
+"ZExpPCAB4CCQE",
 "RPA_CCQE",
 "CoulombCCQE",
 "NormCCMEC",

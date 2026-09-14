@@ -1,10 +1,10 @@
 import os
 
 GENIEMultisigmaKnobNames = [
-"ZExpA1CCQE",
-"ZExpA2CCQE",
-"ZExpA3CCQE",
-"ZExpA4CCQE",
+"ZExpPCAB1CCQE",
+"ZExpPCAB2CCQE",
+"ZExpPCAB3CCQE",
+"ZExpPCAB4CCQE",
 "RPA_CCQE",
 "CoulombCCQE",
 "NormCCMEC",

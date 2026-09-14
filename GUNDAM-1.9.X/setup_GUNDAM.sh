@@ -12,3 +12,5 @@ export LIBRARY_PATH=$LIBRARY_PATH:${INSTALL_DIR}/yaml-cpp/lib64/
 # Finalize setup
 export PATH="$INSTALL_DIR/gundam/bin:$PATH"
 export LD_LIBRARY_PATH="$INSTALL_DIR/gundam/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH=$(root-config --libdir):$LD_LIBRARY_PATH
+

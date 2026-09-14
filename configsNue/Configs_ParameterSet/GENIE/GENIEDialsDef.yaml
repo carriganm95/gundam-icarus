@@ -1,34 +1,34 @@
-- parameterName: "ZExpA1CCQE"
-  isEnabled: true
-  dialSetDefinitions:
-    - dialType: Spline
-      minimumSplineResponse: 0
-      dialLeafName: "ZExpA1CCQE"
-      applyCondition: "[reco_is_data]==0"
+# - parameterName: "ZExpPCAB1CCQE"
+#   isEnabled: true
+#   dialSetDefinitions:
+#     - dialType: Spline
+#       minimumSplineResponse: 0
+#       dialLeafName: "ZExpPCAB1CCQE"
+#       applyCondition: "[reco_is_data]==0"
 
-- parameterName: "ZExpA2CCQE"
-  isEnabled: true
-  dialSetDefinitions:
-    - dialType: Spline
-      minimumSplineResponse: 0
-      dialLeafName: "ZExpA2CCQE"
-      applyCondition: "[reco_is_data]==0"
+# - parameterName: "ZExpPCAB2CCQE"
+#   isEnabled: true
+#   dialSetDefinitions:
+#     - dialType: Spline
+#       minimumSplineResponse: 0
+#       dialLeafName: "ZExpPCAB2CCQE"
+#       applyCondition: "[reco_is_data]==0"
 
-- parameterName: "ZExpA3CCQE"
-  isEnabled: true
-  dialSetDefinitions:
-    - dialType: Spline
-      minimumSplineResponse: 0
-      dialLeafName: "ZExpA3CCQE"
-      applyCondition: "[reco_is_data]==0"
+# - parameterName: "ZExpPCAB3CCQE"
+#   isEnabled: true
+#   dialSetDefinitions:
+#     - dialType: Spline
+#       minimumSplineResponse: 0
+#       dialLeafName: "ZExpPCAB3CCQE"
+#       applyCondition: "[reco_is_data]==0"
 
-- parameterName: "ZExpA4CCQE"
-  isEnabled: true
-  dialSetDefinitions:
-    - dialType: Spline
-      minimumSplineResponse: 0
-      dialLeafName: "ZExpA4CCQE"
-      applyCondition: "[reco_is_data]==0"
+# - parameterName: "ZExpPCAB4CCQE"
+#   isEnabled: true
+#   dialSetDefinitions:
+#     - dialType: Spline
+#       minimumSplineResponse: 0
+#       dialLeafName: "ZExpPCAB4CCQE"
+#       applyCondition: "[reco_is_data]==0"
 
 - parameterName: "RPA_CCQE"
   isEnabled: true
