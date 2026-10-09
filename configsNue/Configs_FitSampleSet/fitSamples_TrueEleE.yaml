@@ -3,7 +3,7 @@ fitSampleList:
     isEnabled: true
     binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_TrueEleE.txt"
 
-    selectionCuts: "true_fiducial_cut == 1"
+    selectionCuts: "true_fiducial_cut == 1" # for asimov
     #selectionCuts: "TrueE>0.3" # (numu+numubar) but Enu>0.3 GeV
     #selectionCuts: "TrueE>0.3 && TruePDG>0." # (numu) but Enu>0.3 GeV
 
@@ -21,5 +21,5 @@ fitSampleList:
         ### Using MC value assumed from sbn-doc-33224, converted to N NUCLEONS instead of N Nuclei
         # USING N Ar NUCLEI
         # Let's assume a 0.2% uncertainty for now... (NOTE: **if** my math is right we may need to scale up by 0.2% in data...)
-        meanValue: 4.70115090e+30
-        stdDev: 9.40230180e+27
+        meanValue: 4.72144364e+30
+        stdDev: 9.44288727e+27

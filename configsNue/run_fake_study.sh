@@ -3,6 +3,7 @@
 set -euo pipefail
 
 tag="${1:-asimov}"
+pot="${2:-2.5e20}"
 
 script_path="$(realpath "${BASH_SOURCE[0]}")"
 script_dir="$(cd "$(dirname "${script_path}")" && pwd)"
@@ -10,6 +11,7 @@ export GUNDAM_CONFIG_DIR="${script_dir}"
 fit_sample_file="${script_dir}/Configs_FitSampleSet/fitSamples_EleE.yaml"
 output_dir="${script_dir}/data/${tag}"
 plot_dir="${script_dir}/plots/${tag}"
+config_dir="${script_dir}/fakeStudyConfigs"
 
 mkdir -p "${output_dir}" "${plot_dir}"
 
@@ -63,7 +65,7 @@ trap cleanup EXIT
 restore_default_binning
 
 fitter_args=(
-  -c "${script_dir}/config_Fitter_FakeData_EleE.yaml"
+  -c "${config_dir}/config_Fitter_FakeData_EleE_${tag}.yaml"
   -o "${output_dir}/fit_${tag}.root"
 )
 
@@ -76,7 +78,7 @@ gundamFitter "${fitter_args[@]}"
 set_nominal_binning
 
 gundamToyGenerator \
-  -c "${script_dir}/config_Toy_FakeData_EleE.yaml" \
+  -c "${config_dir}/config_Toy_FakeData_EleE_${tag}.yaml" \
   -f "${output_dir}/fit_${tag}.root" \
   -n 1000 \
   --use-bf \
@@ -84,11 +86,18 @@ gundamToyGenerator \
   -o "${output_dir}/toy_bf_${tag}.root"
 
 gundamToyGenerator \
-  -c "${script_dir}/config_Toy_FakeData_EleE.yaml" \
+  -c "${config_dir}/config_Toy_FakeData_EleE_${tag}.yaml" \
   -f "${output_dir}/fit_${tag}.root" \
   -n 1000 \
   --use-prefit \
   --save-data \
   -o "${output_dir}/toy_pf_${tag}.root"
 
-python3 "${script_dir}/makePrettyPlots.py" --tag "${tag}"
+gundamCalcXsec \
+  -c "${script_dir}/config_CalcXSec_FakeData_EleE.yaml" \
+  -f "${output_dir}/fit_${tag}.root" \
+  -o "${output_dir}/xsec_${tag}.root" \
+  -n 1000 \
+  --use-bf-as-xsec
+
+python3 "${script_dir}/makePrettyPlots.py" --tag "${tag}" --pot "${pot}"

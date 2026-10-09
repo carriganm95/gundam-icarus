@@ -1,0 +1,126 @@
+# Config for gundamFitter: starting based on screenshots on sbn-doc-32028... let's see
+
+#outputFolder: "${GUNDAM_CONFIG_DIR}/output/"
+minGundamVersion: 1.9.0
+
+xsecCalcConfig:
+  enableStatThrowInToys: true
+  enableEventMcThrow: true
+
+fitterEngineConfig:
+
+  # minimizer
+  minimizerConfig: "${GUNDAM_CONFIG_DIR}/Configs_Minimizer/default_minimizer.yaml"
+
+  # likelihoodInterface
+  likelihoodInterfaceConfig:
+
+    # jointProbability
+    jointProbabilityConfig:
+      type: "PoissonLLH"
+      #type: "BarlowLLH"
+
+    # dataSetManager
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSetList/parameterSetList_EleE.yaml"
+      fitSampleSetConfig: "${GUNDAM_CONFIG_DIR}/Configs_FitSampleSet/fitSamples_EleE.yaml"
+
+    plotGeneratorConfig: "${GUNDAM_CONFIG_DIR}/Configs_PlotGenerator/plotConfigs_EleE.yaml"
+    dataSetList: 
+      - name: "ICARUSNuMI_nueCCInclusive"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/selected"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.36124e19
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/NuMIFull/selected"
+            # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            nominalWeightFormula: "(0.35231940) * ppfx_cv_weight * (true_interaction_mode == 1 ? 0.5 : 1.0)" # 7.095834e+20 -> scaling to 2.36124e19
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+
+      - name: "ICARUSNuMI_nueCCInclusiveCosmics"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/selected_nonmatched"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.36124e19
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/NuMIFull/selected_nonmatched"
+            # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.36124e19
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+      
+      - name: "ICARUSNuMI_nueCCInclusive_beamoff"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/dataBeamOff/selected"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          # Scale = Livetime[onbeam] / Livetime[offbeam] = 483958 / 50788498 = 9.5289e-3
+          nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.36124e19
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/dataBeamOff/selected"
+            # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.36124e19
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/gundam_v30.root"

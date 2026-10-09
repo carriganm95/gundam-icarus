@@ -1,0 +1,5 @@
+# All systematic groups
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/TemplateParameters/parameterSet_TrueEleE.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/GENIE/parameterSet_GENIE.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Flux/parameterSet_Beamline.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Detector/parameterSet_Detector.yaml"

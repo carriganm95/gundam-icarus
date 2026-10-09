@@ -1,0 +1,3 @@
+# Template + GENIE cross section systematics only
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/TemplateParameters/parameterSet_TrueEleE.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/GENIE/parameterSet_GENIE.yaml"

@@ -1,0 +1,3 @@
+# Template + detector systematics only
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/TemplateParameters/parameterSet_TrueEleE.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Detector/parameterSet_Detector.yaml"

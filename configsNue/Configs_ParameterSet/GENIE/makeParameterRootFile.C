@@ -85,15 +85,15 @@ void makeParameterRootFile()
       xsec_param_lb[i] = -3.;
       xsec_param_ub[i] = +3.;
     }
-    else if(i==genieMultisigmaNames.size()){
-      xsec_param_prior[i] = 0.005;
-      xsec_param_lb[i] = -3;
-      xsec_param_ub[i] = 3.;
-    }
+    // else if(i==genieMultisigmaNames.size()){
+    //   xsec_param_prior[i] = 0.005;
+    //   xsec_param_lb[i] = -3.;
+    //   xsec_param_ub[i] = 3.;
+    // }
     else{
-      xsec_param_prior[i] = 0.;
-      xsec_param_lb[i] = -3;
-      xsec_param_ub[i] = 3.;
+      xsec_param_prior[i] = 0.0;
+      xsec_param_lb[i] = 0.;
+      xsec_param_ub[i] = 1.;
     }
   }
   xsec_param_prior.Write("xsec_param_prior");

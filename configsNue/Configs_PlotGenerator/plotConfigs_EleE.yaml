@@ -1,7 +1,8 @@
 varDictionnaries:
   - name: "category"
     dictionary:
-      - { value: 5, title: "Cosmic", color: 805 } # kMagenta
+      - { value: 10, title: "Cosmic2", color: 805 } # kMagenta
+      - { value: 5, title: "Cosmic1", color: 805 } # kMagenta
       - { value: 4, title: "NC", color: 820 } # kRed
       - { value: 3, title: "NuCC OOFV", color: 866 } # kRed
       - { value: 2, title: "NuMu", color: 842 } # kGreen+2

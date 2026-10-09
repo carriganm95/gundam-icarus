@@ -1,7 +1,7 @@
 fitSampleList:
   - name: "signal_EleE"
     isEnabled: true
-    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_EleE.txt"
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_TrueEleE.txt"
     #selectionCuts: "category == 0"
-    selectionCuts: "true_fiducial_cut == 1"
-    dataSets: ["ICARUSNuMI_nueCCInclusive"]
+    # selectionCuts: "true_fiducial_cut == 1" #for asimov
+    dataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_nueCCInclusiveCosmics", "ICARUSNuMI_nueCCInclusive_beamoff"]

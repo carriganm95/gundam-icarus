@@ -7,8 +7,8 @@
 # # Flux
 - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Flux/parameterSet_Beamline.yaml"
 
-# # # Detector
-# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Detector/parameterSet_Detector.yaml"
+# # Detector
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Detector/parameterSet_Detector.yaml"
 
 # # G4 Proton Reinteractions
 # - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_Proton.yaml"

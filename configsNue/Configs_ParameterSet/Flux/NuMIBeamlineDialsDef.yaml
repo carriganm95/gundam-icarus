@@ -3,6 +3,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horn_2kA_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -11,6 +12,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horn1_x_3mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -19,6 +21,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horn1_y_3mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -27,6 +30,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_spot_1_3mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -35,6 +39,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_spot_1_7mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -43,6 +48,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horn2_x_3mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -51,6 +57,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "numi_Horns_water"
       applyCondition: "[reco_is_data]==0"
 
@@ -59,6 +66,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horn2_y_3mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -67,6 +75,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horns_0mm_water_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -75,6 +84,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_horns_2mm_water_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -83,6 +93,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_Beam_shift_y_1mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -91,6 +102,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_beam_Target_z_7mm_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -99,6 +111,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_0_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -107,6 +120,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_1_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -115,6 +129,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_2_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -123,6 +138,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_3_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -131,6 +147,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_4_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -139,6 +156,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_5_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -147,6 +165,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_6_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -155,6 +174,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_7_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -163,6 +183,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_8_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -171,6 +192,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_9_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -179,6 +201,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_10_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -187,6 +210,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_11_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -195,6 +219,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_12_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -203,6 +228,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_13_v"
       applyCondition: "[reco_is_data]==0"
 
@@ -211,6 +237,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
       dialLeafName: "hysyst_hpc_14_v"
       applyCondition: "[reco_is_data]==0"
 

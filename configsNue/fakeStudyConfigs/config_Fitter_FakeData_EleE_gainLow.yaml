@@ -1,0 +1,175 @@
+# Config for gundamFitter: starting based on screenshots on sbn-doc-32028... let's see
+
+#outputFolder: "${GUNDAM_CONFIG_DIR}/output/"
+minGundamVersion: 1.9.0
+
+# statThrowConfig:
+#   enableStatThrowInToys: false
+#   enableEventMcThrow: false
+
+fitterEngineConfig:
+
+  # minimizer
+  minimizerConfig: "${GUNDAM_CONFIG_DIR}/Configs_Minimizer/default_minimizer.yaml"
+
+  # likelihoodInterface
+  likelihoodInterfaceConfig:
+
+    # jointProbability
+    jointProbabilityConfig:
+      type: "PoissonLLH"
+      #type: "BarlowLLH"
+
+    # dataSetManager
+    propagatorConfig:
+      parametersManagerConfig:
+        parameterSetList: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSetList/parameterSetList_EleE.yaml"
+      fitSampleSetConfig: "${GUNDAM_CONFIG_DIR}/Configs_FitSampleSet/fitSamples_EleE.yaml"
+
+      showEventBreakdown: true
+      debugPrintLoadedEvents: true
+
+    enableStatThrowInToys: false
+    enableEventMcThrow: false
+
+    plotGeneratorConfig: "${GUNDAM_CONFIG_DIR}/Configs_PlotGenerator/plotConfigs_EleE.yaml"
+    dataSetList: 
+      - name: "ICARUSNuMI_nueCCInclusive"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/selected"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.5e20
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/induction_low/selected"
+            nominalWeightFormula: "(1.1848556)" # 2.1099617e+20 -> 2.5e20
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/merged_v30.root"
+            selectionCutFormula: "true_neutrino_id >= 0"
+              
+      - name: "ICARUSNuMI_nueCCInclusiveCosmics"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/selected_nonmatched"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.36124e19
+        
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/induction_low/selected"
+            nominalWeightFormula: "(1.1848556)" # 2.1099617e+20 -> 2.5e20
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/merged_v30.root"
+            selectionCutFormula: "true_neutrino_id < 0"
+      
+      - name: "ICARUSNuMI_nueCCInclusive_beamoff"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/dataBeamOff/selected"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          # Scale = Livetime[onbeam] / Livetime[offbeam] = 483958 / 50788498 = 9.5289e-3
+          nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.36124e19
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/dataBeamOff/selected"
+            # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.5e20
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/gundam_v30.root" 
+
+  ## "_enablePca_" is set by {"enablePca"}, {"runPcaCheck"}, {"fixGhostFitParameters"}
+  ## - default: false
+  enablePca: true
+
+  ## "_pcaDeltaChi2Threshold_" is set by {"ghostParameterDeltaChi2Threshold"}, {"pcaDeltaChi2Threshold"}
+  ## - default: 1E-6
+  pcaDeltaChi2Threshold: 1E-4
+
+  ## "_enablePreFitScan_" is set by "enablePreFitScan"
+  ## - default: false
+  enablePreFitScan: false
+
+  ## "_enablePostFitScan_" is set by "enablePostFitScan"
+  ## - default: false
+  enablePostFitScan: false
+
+  ## "_enablePreFitToPostFitLineScan_" is set by "enablePreFitToPostFitLineScan"
+  ## - default: true
+
+  ## "_generateSamplePlots_" is set by "generateSamplePlots"
+  ## - default: true
+
+  ## "_generateOneSigmaPlots_" is set by "generateOneSigmaPlots"
+  ## - default: false
+
+  ## "_doAllParamVariations_" is set by "enableParamVariations"
+  ## - default: false
+
+  ## "_allParamVariationsSigmas_" is set by {"paramVariationsSigmas"}, {"allParamVariations"}
+  ## - default: empty vector
+
+  ## "_scaleParStepWithChi2Response_" is set by "scaleParStepWithChi2Response"
+  ## - default: false
+
+  ## "_parStepGain_" is set by "parStepGain"
+  ## - default: 0.1
+
+  ## "_throwMcBeforeFit_" is set by "throwMcBeforeFit"
+  ## - default: false
+
+  ## "_throwGain_" is set by "throwMcBeforeFitGain"
+  ## - default: 1.
+
+  ## "_savePostfitEventTrees_" is set by "savePostfitEventTrees"
