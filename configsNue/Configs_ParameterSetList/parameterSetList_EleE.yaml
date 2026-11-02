@@ -11,10 +11,10 @@
 - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/Detector/parameterSet_Detector.yaml"
 
 # # G4 Proton Reinteractions
-# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_Proton.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_Proton.yaml"
 
 # # G4 PiPlus Reinteractions
-# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiPlus.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiPlus.yaml"
 
 # # G4 PiMinus Reinteractions
-# - "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiMinus.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiMinus.yaml"

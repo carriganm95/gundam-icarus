@@ -1,0 +1,9 @@
+# Python packages for the configsNue analysis scripts, installed on top of the
+# spack python3.9 loaded by setup_spack.sh. Install into the data-area prefix
+# that PYTHONPATH already points to:
+#   python3 -m pip install --prefix=/exp/icarus/data/users/micarrig/.local -r configsNue/requirements.txt
+numpy
+pandas
+matplotlib
+uproot>=5      # Configs_ParameterSet/G4/calc_geant4_covariance.py
+awkward>=2

@@ -1,0 +1,32 @@
+varDictionnaries:
+  - name: "category"
+    dictionary:
+      - { value: 10, title: "Cosmic2", color: 805 } # kMagenta
+      - { value: 5, title: "Cosmic1", color: 805 } # kMagenta
+      - { value: 4, title: "NC", color: 820 } # kRed
+      - { value: 3, title: "NuCC OOFV", color: 866 } # kRed
+      - { value: 2, title: "NuMu", color: 842 } # kGreen+2
+      - { value: 1, title: "NuE OOFV", color: 800 } # kOrange
+      - { value: 0, title: "Signal", color: 855 } # kOrange
+
+histogramsDefinition:
+  - varToPlot: "reco_ele_beam_open_angle"
+    splitVars: ["category"]
+    useSampleBinning: true
+    rescaleAsBinWidth: false
+    xTitle: "Reco cos#theta_{e}"
+    yTitle: "Slices"
+
+  # NC pi0 sideband sample (only drawn for samples binned in this variable)
+  - varToPlot: "reco_visible_energy"
+    splitVars: ["category"]
+    useSampleBinning: true
+    rescaleAsBinWidth: false
+    xTitle: "Reco Visible Energy [GeV]"
+    yTitle: "Slices"
+
+canvasParameters:
+  height: 800
+  width: 1000
+  nbXplots: 1
+  nbYplots: 1

@@ -1,0 +1,20 @@
+{
+  "MainTree": {
+    "FilePath": "/exp/icarus/data/users/micarrig/merged_g4_v31_flux.root",
+    "TreeKey": "events/g4/selected"
+  },
+  "DialTree": {
+    "TreeKey": "events/g4/selected_multisimTree"
+  },
+  "BinningFile": "/exp/icarus/app/users/micarrig/gundam/gundam-icarus/configsNue/binnings/binning_G4ProtonP.txt",
+
+  "JobName": "G4Proton_protonP",
+  "DialName": "reinteractions_proton_Geant4",
+  "NUniv": 2000,
+
+  "SelectionCutExpr": "",
+  "SampleSelectionExpr": "",
+  "SampleWeightExpr": "ppfx_cv_weight",
+
+  "OutputFileName": "output_CovMat_G4Proton_protonP.root"
+}

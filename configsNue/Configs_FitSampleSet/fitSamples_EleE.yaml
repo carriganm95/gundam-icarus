@@ -1,7 +1,14 @@
 fitSampleList:
   - name: "signal_EleE"
     isEnabled: true
-    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_TrueEleE.txt"
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_EleE.txt"
     #selectionCuts: "category == 0"
     # selectionCuts: "true_fiducial_cut == 1" #for asimov
     dataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_nueCCInclusiveCosmics", "ICARUSNuMI_nueCCInclusive_beamoff"]
+
+  # NC pi0 sideband (2 photons, 100 < m_gg < 180 MeV, ~85% true NC). Fit jointly
+  # with the signal to constrain the GENIE NC / flux / detector parameters.
+  - name: "sideband_NCpi0"
+    isEnabled: true
+    binning: "${GUNDAM_CONFIG_DIR}/binnings/binning_SidebandVisE.txt"
+    dataSets: ["ICARUSNuMI_ncSideband"]

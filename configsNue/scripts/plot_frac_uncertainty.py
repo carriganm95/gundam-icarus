@@ -18,7 +18,8 @@ Individual contributions are quadrature differences:
   GENIE in total = sqrt(max(0, all^2        - no_xsec^2))
 
 Note: GUNDAM stores histogram bin edges as sequential integers; physical
-energies come from XSEC_EDGES (xsec) or toy bin labels (distribution).
+energies are parsed from the '[lo, hi[' bin labels (both xsec and toy
+histograms carry them), so the plots adapt to any (re)binning of truth space.
 """
 import argparse
 import os
@@ -30,15 +31,18 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import analysis_vars  # GUNDAM_VAR / --var selects EleE or EleAngle
+analysis_vars.apply_cli_override()
 from makePrettyPlots import stamp_ax, POT_DEFAULT
 
 import ROOT as r
 r.gROOT.SetBatch(True)
 
 
-XSEC_HIST        = "calcXsec/histograms/TrueEleE_XS_TH1D"
-DIST_HIST        = "toyGen/histograms/signal_EleE_TH1D"
-DIST_PREFIT_HIST = "toyGen/histograms/signal_EleE_pre_fit_TH1D"
+VAR              = analysis_vars.current()
+XSEC_HIST        = VAR["xsec_hist"]
+DIST_HIST        = VAR["dist_hist"]
+DIST_PREFIT_HIST = VAR["dist_prefit_hist"]
 
 HIST_FILE = {
     XSEC_HIST:        "xsec.root",
@@ -46,15 +50,12 @@ HIST_FILE = {
     DIST_PREFIT_HIST: "toy_pf.root",
 }
 
-# True-energy bin edges in GeV — matches binnings/binning_TrueEleE.txt (MeV/1000)
-XSEC_EDGES = np.array([0.300, 0.390, 0.490, 0.600, 0.730, 0.870,
-                        1.030, 1.240, 1.500, 2.000, 5.000])
-
 COLORS = {
     "stat":     "grey",
     "genie":    "steelblue",
     "flux":     "darkorange",
     "detector": "forestgreen",
+    "g4":       "crimson",
     "total":    "black",
 }
 
@@ -63,6 +64,7 @@ LABELS_IND = {
     "genie":    "GENIE",
     "flux":     "Flux",
     "detector": "Detector",
+    "g4":       "G4 reinteraction",
     "total":    "Total (reference)",
 }
 
@@ -71,6 +73,7 @@ LABELS_N1 = {
     "genie":    "GENIE/Total",
     "flux":     "Flux/Total",
     "detector": "Detector/Total",
+    "g4":       "G4/Total",
     "total":    "Total",
 }
 
@@ -80,6 +83,7 @@ LABELS_TRUE_N1 = {
     "no_xsec":  "No GENIE",
     "no_flux":  "No Flux",
     "no_detector": "No Detector",
+    "no_g4":    "No G4",
 }
 
 COLORS_TRUE_N1 = {
@@ -88,11 +92,12 @@ COLORS_TRUE_N1 = {
     "no_xsec":     "steelblue",
     "no_flux":     "darkorange",
     "no_detector": "forestgreen",
+    "no_g4":       "crimson",
 }
 
 
 def parse_dist_edges(path, hist_key):
-    """Parse physical reco-energy bin edges in GeV from a toy root file.
+    """Parse physical bin edges (GeV for EleE, cos theta for EleAngle) from a GUNDAM root file.
 
     GUNDAM stores bin edges as sequential integers; the actual energies are
     encoded in the bin labels as 'variable: [lo, hi['.
@@ -106,8 +111,8 @@ def parse_dist_edges(path, hist_key):
         lo = float(nums[0].strip())
         hi = float(nums[1].strip().rstrip("[]()"))
         if i == 1:
-            edges.append(lo / 1000.0)
-        edges.append(hi / 1000.0)
+            edges.append(lo * VAR["unit_scale"])
+        edges.append(hi * VAR["unit_scale"])
     rf.Close()
     return np.array(edges)
 
@@ -124,10 +129,10 @@ def load_frac_unc(path, hist_key):
 def load_all(data_dir, hist_key):
     """Load fractional uncertainty arrays for all variants. Returns (edges, raw_dict)."""
     variants = ["all", "template_only", "xsec_only", "flux_only",
-                "detector_only", "no_xsec", "no_flux", "no_detector"]
+                "detector_only", "no_xsec", "no_flux", "no_detector",
+                "g4_only", "no_g4"]  # G4 variants are optional (EleE only so far)
 
     file_name = HIST_FILE[hist_key]
-    is_xsec = hist_key == XSEC_HIST
 
     raw = {}
     edges = None
@@ -137,11 +142,12 @@ def load_all(data_dir, hist_key):
             print(f"WARNING: {fpath} not found, skipping {name}")
             continue
         raw[name] = load_frac_unc(fpath, hist_key)
-        if edges is None and not is_xsec:
+        # The xsec histogram (TrueEleE_XS) carries the same '[lo, hi[' bin labels
+        # as the toy histograms, so parse edges from the labels for every histogram
+        # rather than hardcoding — this adapts to any (re)binning of truth space.
+        if edges is None:
             edges = parse_dist_edges(fpath, hist_key)
 
-    if is_xsec:
-        edges = XSEC_EDGES
     return edges, raw
 
 
@@ -169,6 +175,7 @@ def compute_individual(raw):
         "genie":    isolated(raw["xsec_only"],     stat),
         "flux":     isolated(raw["flux_only"],     stat),
         "detector": isolated(raw["detector_only"], stat),
+        **({"g4": isolated(raw["g4_only"], stat)} if "g4_only" in raw else {}),
         "total":    total,
     }
 
@@ -182,6 +189,7 @@ def compute_n_minus_1(raw):
         "genie":    isolated(total, raw["no_xsec"]),
         "flux":     isolated(total, raw["no_flux"]),
         "detector": isolated(total, raw["no_detector"]),
+        **({"g4": isolated(total, raw["no_g4"])} if "no_g4" in raw else {}),
         "total":    total,
     }
 
@@ -218,7 +226,7 @@ def make_n_minus_1_figure(raw, edges, output_path, xlabel, pot):
     """True N-1 plot: total uncertainty with each systematic group removed."""
     fig, ax = plt.subplots(figsize=(9, 6))
 
-    draw_order = ["total", "no_xsec", "no_flux", "no_detector", "stat"]
+    draw_order = ["total", "no_xsec", "no_flux", "no_detector", "no_g4", "stat"]
     data = {
         "total":       raw["all"],
         "stat":        raw["template_only"],
@@ -226,6 +234,9 @@ def make_n_minus_1_figure(raw, edges, output_path, xlabel, pot):
         "no_flux":     raw["no_flux"],
         "no_detector": raw["no_detector"],
     }
+    if "no_g4" in raw:
+        data["no_g4"] = raw["no_g4"]
+    draw_order = [k for k in draw_order if k in data]
     for key in draw_order:
         frac = data[key]
         is_ref = key in ("total", "stat")
@@ -309,6 +320,8 @@ def parse_args():
                    help="Base dir containing <variant>/xsec.root and toy_bf.root")
     p.add_argument("--output-dir", required=True)
     p.add_argument("--pot", default=POT_DEFAULT)
+    p.add_argument("--var", default=None, choices=sorted(analysis_vars.VARIABLES),
+                   help="Analysis variable (default: $GUNDAM_VAR, else EleE)")
     return p.parse_args()
 
 
@@ -317,11 +330,11 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     process_dataset(args.data_dir, args.output_dir, XSEC_HIST,
-                    "xsec", r"$E_e$ [GeV]", args.pot)
+                    "xsec", VAR["true_label"], args.pot)
     process_dataset(args.data_dir, args.output_dir, DIST_HIST,
-                    "dist", r"Reco $E_e$ [GeV]", args.pot)
+                    "dist", VAR["reco_label"], args.pot)
     process_dataset(args.data_dir, args.output_dir, DIST_PREFIT_HIST,
-                    "dist_prefit", r"Reco $E_e$ [GeV]", args.pot)
+                    "dist_prefit", VAR["reco_label"], args.pot)
 
 
 if __name__ == "__main__":

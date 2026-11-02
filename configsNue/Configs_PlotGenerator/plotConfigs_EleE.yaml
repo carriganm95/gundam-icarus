@@ -18,6 +18,14 @@ histogramsDefinition:
     yTitle: "Slices"
     xMax: 5000.0
 
+  # NC pi0 sideband sample (only drawn for samples binned in this variable)
+  - varToPlot: "reco_visible_energy"
+    splitVars: ["category"]
+    useSampleBinning: true
+    rescaleAsBinWidth: false
+    xTitle: "Reco Visible Energy [GeV]"
+    yTitle: "Slices"
+
 canvasParameters:
   height: 800
   width: 1000

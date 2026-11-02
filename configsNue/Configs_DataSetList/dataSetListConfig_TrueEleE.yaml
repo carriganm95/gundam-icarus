@@ -4,6 +4,6 @@
 
     tree: "events/NuMIFull/all_signal"
     filePathList:
-      - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+      - "/exp/icarus/data/users/micarrig/gundam_v31.root"
     nominalWeightFormula: "(0.35231940) * ppfx_cv_weight" #scaling to 2.5e20POT
 

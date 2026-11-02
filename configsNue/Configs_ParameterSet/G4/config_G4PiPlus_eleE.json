@@ -1,0 +1,20 @@
+{
+  "MainTree": {
+    "FilePath": "/exp/icarus/data/users/micarrig/merged_g4_v31_flux.root",
+    "TreeKey": "events/g4/selected"
+  },
+  "DialTree": {
+    "TreeKey": "events/g4/selected_multisimTree"
+  },
+  "BinningFile": "/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/binnings/binning_EleE.txt",
+
+  "JobName": "G4Piplus_contained",
+  "DialName": "reinteractions_piplus_Geant4",
+  "NUniv": 2000,
+
+  "SelectionCutExpr": "",
+  "SampleSelectionExpr": "",
+  "SampleWeightExpr": "ppfx_cv_weight",
+
+  "OutputFileName": "output_CovMat_G4Piplus_eleE.root"
+}

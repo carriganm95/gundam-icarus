@@ -42,7 +42,7 @@ fitterEngineConfig:
         mc:
           tree: "events/NuMIFull/selected"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -60,7 +60,42 @@ fitterEngineConfig:
             # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
             nominalWeightFormula: "(0.35231940) * ppfx_cv_weight * ((true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) : 1.0)" # 7.095834e+20 -> scaling to 2.36124e19
             filePathList:
-              - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+              - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+
+      # NC pi0 sideband: same MC/fake-data model as the signal dataset, nc_sideband trees
+      - name: "ICARUSNuMI_ncSideband"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/nc_sideband"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.36124e19
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/NuMIFull/nc_sideband"
+            # nominalWeightFormula: "(true_category != 0) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
+            # Sideband: events without an electron candidate have NaN electron p/angle -> weight 1.
+            nominalWeightFormula: "(0.35231940) * ppfx_cv_weight * ((true_category != 0 && reco_ele_beam_open_angle == reco_ele_beam_open_angle && reco_leading_electron_p == reco_leading_electron_p) ? reco_leading_electron_p / 1000 * sin(acos(reco_ele_beam_open_angle)) : 1.0)" # 7.095834e+20 -> scaling to 2.36124e19
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+
 
       - name: "ICARUSNuMI_nueCCInclusiveCosmics"
 
@@ -74,7 +109,7 @@ fitterEngineConfig:
         mc:
           tree: "events/NuMIFull/selected_nonmatched"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -92,7 +127,7 @@ fitterEngineConfig:
             # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
             nominalWeightFormula: "(0.35231940)" # 7.095834e+20 -> scaling to 2.36124e19
             filePathList:
-              - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+              - "/exp/icarus/data/users/micarrig/gundam_v31.root"
       
       - name: "ICARUSNuMI_nueCCInclusive_beamoff"
 
@@ -106,7 +141,7 @@ fitterEngineConfig:
         mc:
           tree: "events/dataBeamOff/selected"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -125,7 +160,7 @@ fitterEngineConfig:
             # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
             nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.36124e19
             filePathList:
-              - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+              - "/exp/icarus/data/users/micarrig/gundam_v31.root"
               
   # listing local configs 
 

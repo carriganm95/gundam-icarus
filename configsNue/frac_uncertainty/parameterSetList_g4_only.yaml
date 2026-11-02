@@ -1,0 +1,7 @@
+# Template parameters only — no nuisance systematics
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/TemplateParameters/parameterSet_TrueEleE.yaml"
+
+# G4 reinteractions (proton, pi+, pi-)
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_Proton.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiPlus.yaml"
+- "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/parameterSet_G4_PiMinus.yaml"

@@ -3,7 +3,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "induction_high"
       applyCondition: "[reco_is_data]==0"
 
@@ -12,7 +12,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "induction_low"
       applyCondition: "[reco_is_data]==0"
 
@@ -21,7 +21,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "coherent_high"
       applyCondition: "[reco_is_data]==0"
 
@@ -30,7 +30,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "coherent_low"
       applyCondition: "[reco_is_data]==0"
 
@@ -39,7 +39,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "intrinsic_high"
       applyCondition: "[reco_is_data]==0"
 
@@ -48,7 +48,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "intrinsic_low"
       applyCondition: "[reco_is_data]==0"
 
@@ -57,7 +57,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "lifetime_high"
       applyCondition: "[reco_is_data]==0"
 
@@ -66,7 +66,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "lifetime_low"
       applyCondition: "[reco_is_data]==0"
 
@@ -75,7 +75,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "scintillation"
       applyCondition: "[reco_is_data]==0"
 
@@ -84,7 +84,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "wire_gap"
       applyCondition: "[reco_is_data]==0"
 
@@ -93,7 +93,7 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "yz_uniformity"
       applyCondition: "[reco_is_data]==0"
 
@@ -102,6 +102,6 @@
   dialSetDefinitions:
     - dialType: Spline
       minimumSplineResponse: 0
-      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive"]
+      applyOnDataSets: ["ICARUSNuMI_nueCCInclusive", "ICARUSNuMI_ncSideband"]
       dialLeafName: "recombination"
       applyCondition: "[reco_is_data]==0"

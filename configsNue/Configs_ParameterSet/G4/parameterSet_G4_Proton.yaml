@@ -1,4 +1,4 @@
-name: G4 Proton Fate
+name: G4 Proton Reinteraction
 isEnabled: true
 
 printDialSetsSummary: true
@@ -7,29 +7,26 @@ allowPca: true
 
 useEigenDecompInFit: true
 allowEigenDecompWithBounds: true
-## EigenDecomp settings
-## "_maxNbEigenParameters_" is set by "maxNbEigenParameters"
-## - default: -1
-## "_maxEigenFraction_" is set by "maxEigenFraction"
-## - default: 1.
-## JSON block for eigenParBounds are 
-## eigenParBounds:
-##   minValue: 0
-##   maxValue: 30
 
-covarianceMatrixFilePath: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/output_CovMat_G4ProtonFate.root"
-covarianceMatrixTMatrixD: "G4ProtonFate/G4ProtonFate_covariance"
+# Fractional covariance from calc_geant4_covariance.py config_G4Proton_protonP.json
+# (2000 GEANT4 reinteraction universes, merged_g4_v31_flux.root events/g4)
+covarianceMatrixFilePath: "${GUNDAM_CONFIG_DIR}/Configs_ParameterSet/G4/outputs/output_CovMat_G4Proton_protonP.root"
+covarianceMatrixTMatrixD: "G4Proton_protonP/G4Proton_protonP_covariance"
 
-parameterLimits:
-  minValue: 0
-  maxValue: 30
+# parameterLimits (minValue 0, maxValue 30) removed 2026-10-27: with
+# useEigenDecompInFit GUNDAM reports "Undefined behavior: Using bounded
+# parameters with eigendecomposition". Priors are 1 with widths of
+# 0.07-12%, so the 0 bound is never approached. Restore these limits if
+# eigen-decomposition is turned off.
+# parameterLimits:
+#   minValue: 0
+#   maxValue: 30
 
 useOnlyOneParameterPerEvent: true
 
 dialSetDefinitions:
-  - name: G4 Proton Fate dialSetDefinitions
+  - name: G4 Proton Reinteraction dialSetDefinitions
     applyOnDataSets: ["*"]
-    parametersBinningPath: "./binnings/binning_G4ProtonFate.txt"
+    parametersBinningPath: "${GUNDAM_CONFIG_DIR}/binnings/binning_G4ProtonP.txt"
     printDialsSummary: true
-    applyCondition: "[IsData]==0"
-
+    applyCondition: "[reco_is_data]==0"

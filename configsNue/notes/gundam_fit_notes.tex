@@ -626,6 +626,52 @@ Extracted cross section & $19.1\%$ \\
 \end{tabular}
 \end{center}
 
+\subsection{Pre-fit vs post-fit statistical band: why the post-fit is larger}
+
+In an Asimov study the \emph{statistical} band of the reconstructed distribution
+comes out larger \emph{after} the fit than before, which is surprising until the
+free templates are accounted for. For the stat-only setup
+(\code{template\_only}, no systematics), with the toy generator throwing
+\code{enableStatThrowInToys} and \code{enableEventMcThrow} on top of the
+parameters:
+
+\begin{center}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Quantity (\code{template\_only}, 10 bins) & mean frac.\ unc. \\
+\midrule
+Distribution, pre-fit band                  & $2.9\%$ \\
+Distribution, post-fit band                 & $5.8\%$ \\
+Template post-fit Hesse error (true bins)   & $9.0\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The only difference between the two bands is the parameter throw:
+\begin{itemize}
+  \item \textbf{Pre-fit} (\code{--use-prefit}) throws parameters from the
+    \emph{prior} covariance. The templates are free---no prior covariance, only
+    \code{parameterLimits}---so there is nothing to throw for them (a flat prior
+    cannot be sampled; GUNDAM leaves them at nominal). The pre-fit band is then
+    only the stat and MC throws: the Poisson/MC scatter of a \emph{fixed} nominal
+    prediction, with no signal-normalization uncertainty in it at all.
+  \item \textbf{Post-fit} (\code{--use-bf}) throws from the post-fit Hesse
+    covariance, which now carries the template errors ($\sim\!9\%$ per true bin)
+    that the data created by constraining the free signal strength. Throwing
+    these adds in quadrature: $\sqrt{5.8^2-2.9^2}\approx5.0\%$ is the template
+    contribution projected into reco space, smaller than the $9\%$ true-bin error
+    because the response matrix averages it down.
+\end{itemize}
+
+This is the ``free templates have no prior spring'' point
+(Fig.~\ref{fig:balance}) applied to the toy bands. For a parameter \emph{with} a
+prior (a systematic), the Asimov pre- and post-fit bands are nearly equal,
+because the fit barely moves it ($\sigma\approx$ prior before and after). The
+templates are the exception: their uncertainty is undefined before the fit and is
+\emph{created} by it. So the pre-fit distribution band is not a complete
+statistical uncertainty for a free-template analysis---it omits the signal
+normalization entirely---and the post-fit band is the one to quote.
+
 \subsection{Decomposition of the total uncertainty}
 
 The measurement is \emph{not} statistics-limited. The fiducial signal yield is
@@ -660,6 +706,67 @@ systematic is a decisive lever. Zeroing the flux normalization
 (\code{run\_frac\_uncertainty.sh --zero-flux-norm}) moves the total only from
 $23.6\%$ to $21.3\%$, because a $9\%$ term inside a $24\%$ total is only
 $\sim\!15\%$ of the variance.
+
+\subsection{How each contribution is computed (\code{--decompose})}
+\label{sec:decompose}
+
+The individual lines are isolated by re-running \code{gundamCalcXsec} on a single
+fit and toggling one throw at a time, then taking quadrature differences. The
+driver is \code{run\_frac\_uncertainty.sh --decompose}.
+
+\paragraph{The two ``flux'' contributions are distinct.}
+\begin{itemize}
+  \item \textbf{Flux norm} --- the overall flux \emph{normalisation}
+    ($\Phi$ in $N/(\Phi\,T\,\epsilon)$), the \code{Constant flux} entry of the
+    \code{normaliseParameterList} in \code{fitSamples\_TrueEleE.yaml}
+    ($\sigma=9.13\%$, $100\%$ correlated across bins, applied by
+    \code{gundamCalcXsec} to the cross-section definition --- not a fit parameter).
+  \item \textbf{Flux beamline} --- the NuMI beamline/focusing \emph{systematic}
+    (energy-dependent flux shape), the fit parameter set
+    \code{parameterSet\_Beamline.yaml} (``Flux Systematics Beamline'').
+\end{itemize}
+
+\paragraph{The stat-only decomposition.} The cross-section error from
+\code{gundamCalcXsec} is the spread of the $N=1000$ toys; each toy throws some
+subset of: the post-fit parameter covariance, a Poisson data fluctuation
+(\code{enableStatThrowInToys}), an MC-statistical fluctuation
+(\code{enableEventMcThrow}), and the normaliseParameters. Running on the
+\code{template\_only} fit with one toggle at a time isolates each piece:
+
+\begin{center}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Line (variant dir) & statThrow & mcThrow & normalisers kept \\
+\midrule
+Template (\code{template\_base}) & off & off & none \\
+Stat (\code{statthrow})          & \textbf{on}  & off & none \\
+Efficiency stat (\code{mcthrow}) & off & \textbf{on}  & none \\
+Flux norm (\code{fluxnorm})      & off & off & \code{Constant flux} \\
+Targets (\code{targets})         & off & off & \code{Number of targets} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each contribution is the quadrature difference from the template base
+$t \equiv$ \code{template\_base},
+\begin{equation}
+  C_X = \sqrt{\max\!\big(0,\; f_X^2 - f_t^2\big)},
+  \qquad f_X = \frac{\text{bin error}}{\text{bin value}}\times 100,
+  \label{eq:isolate}
+\end{equation}
+read per bin from \code{calcXsec/histograms/TrueEleE\_XS\_TH1D}. \emph{Template}
+is $f_t$ itself: the template parameters' post-fit (Hesse) covariance propagated
+to the cross section --- the fit's statistical constraint on the signal, which
+carries the migration structure (hence it rises at low energy; see the
+diagonal-response test below). The systematic sets (GENIE, flux-beamline,
+detector) are isolated with the same Eq.~\eqref{eq:isolate} but above the
+\emph{full} \code{template\_only} (all throws and normalisers on), so every line
+adds in quadrature to Total.
+
+\paragraph{Caveat.} The efficiency-stat line is only the \emph{signal-template}
+MC noise. Each systematic's own dial-reweighting MC noise stays inside that
+systematic's line; to split a set's physical part from its MC noise, re-run it
+with \code{--no-mc-throw}.
 
 \subsection{The diagonal-response (perfect-resolution) test}
 
@@ -716,6 +823,44 @@ Even infinite statistics reaches only $\sim\!14.6\%$: the measurement is
 systematics-limited. In reco space, more statistics marginally tightens the
 small non-degenerate part of each systematic ($\sigma<1$); in the diagonal limit
 ($\sigma=1$) it does nothing.
+
+\subsection{Summary: three mechanisms that inflate the cross section}
+
+The post-fit distribution uncertainty ($\sim\!6\%$ per bin) and the extracted
+cross-section uncertainty ($\sim\!20$--$32\%$ per true bin) come out of the same
+fit and the same post-fit covariance. Three distinct mechanisms account for the
+gap:
+
+\begin{enumerate}
+  \item \textbf{Un-smearing (resolution / migration).} The reconstructed
+    distribution is the true-bin templates \emph{smeared down} by the response
+    matrix --- each reco bin averages over several true bins. The cross section
+    un-smears back to true bins, amplifying every per-bin uncertainty by
+    $\sim\!2\times$ (stat $5.8\%\to9.0\%$, and a comparable factor on each
+    systematic). Removable only by better resolution; the diagonal-response test
+    sets the floor. It is largest at threshold, where the resolution
+    ($\sim\!46\%$) is far wider than the true-bin width.
+  \item \textbf{Dividing by flux and efficiency.} The cross section is
+    $N/(\Phi\,T\,\epsilon)$. The flux normalisation ($9.13\%$) is baked into the
+    definition and absent from the distribution. The detector and flux-beamline
+    dials act on the selected sample but \emph{not} the truth denominator, so
+    they do not cancel in the efficiency $\epsilon$ and survive as a
+    cross-section uncertainty \emph{even at perfect resolution} ($\sim\!6\%$ for
+    detector in the diagonal test).
+  \item \textbf{Loss of template shielding for the systematic priors.} In the
+    distribution the free templates absorb the unconstrained systematics to keep
+    the prediction pinned to the data, so GENIE, detector and flux-beamline are
+    nearly invisible there ($\lesssim\!1\%$ for detector). The cross section
+    \emph{is} the template, so their full priors re-appear: GENIE $\sim\!12\%$,
+    detector $\sim\!12\%$, flux-beamline $\sim\!8\%$. This is the dominant
+    bucket, removable only by an external constraint that breaks the degeneracy.
+\end{enumerate}
+
+These are mechanisms, not a strict additive partition: detector and flux reach
+the cross section through more than one (mechanism~1 un-smears them, mechanism~2
+carries them through the efficiency). Quantitatively, in the lowest-energy bin
+the un-smearing is the single largest piece ($\sim\!27\%$ of the $32.9\%$),
+while integrated over the spectrum the systematic priors (mechanism~3) dominate.
 
 \subsection{What would reduce it}
 

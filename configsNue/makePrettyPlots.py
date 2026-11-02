@@ -12,9 +12,80 @@ from scipy import stats
 sys.path.insert(0, '/nashome/m/micarrig/icarus/nuESpine/medulla')
 from spineplot.style import stamp, load_style_from_toml
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import analysis_vars  # per-variable names/labels; pick with GUNDAM_VAR or --var
+
 POT_DEFAULT = "2.5e20"
 STYLE_NAME = 'nue_icarus'
 WORK_IN_PROGRESS = True
+
+# --- MC (CAF) truth cross-section reference --------------------------------
+# gundamCalcXsec builds dsigma/dE for the signal from the true-signal tree
+# below, normalising by the flux and target count in
+# Configs_FitSampleSet/fitSamples_True<var>.yaml (selection: true_fiducial_cut).
+# We reproduce that exactly here so a *fake-data* truth curve — the nominal
+# truth times whatever truth reweight was injected to build the fake data —
+# lands on the same absolute scale as the GUNDAM extraction. (Verified: the
+# nominal reweight reproduces the Asimov GUNDAM xsec to 1.000 in every bin.)
+MC_TRUTH_FILE = "/exp/icarus/data/users/micarrig/gundam_v31.root"
+MC_TRUTH_TREE = "events/NuMIFull/all_signal"
+# The truth branch and its unit conversion come from analysis_vars.current().
+MC_TRUTH_SELECTION = "true_fiducial_cut == 1"
+MC_TRUTH_NOMINAL_WEIGHT = "0.35231940 * ppfx_cv_weight"  # -> 2.5e20 POT
+MC_TRUTH_FLUX = 4.41961285e+09      # (nue+nuebar)/cm^2 @ 2.5e20 POT
+MC_TRUTH_NTARGETS = 4.72144364e+30  # N Ar nuclei
+
+# Per-tag signal-truth reweight applied to the MC truth to build the fake-data
+# truth reference. Expressions are evaluated with numpy against the truth-tree
+# branches (use `where(cond, a, b)` for the YAML's C-style `cond ? a : b`, and
+# `&`/`|` for boolean and/or). Only reweights that change the SIGNAL truth
+# belong here:
+#   * Q2, res/QE/MEC/DIS 0p5/1p5 are pure functions of true quantities applied to the
+#     signal -> they change dsigma/dE and need the scaled reference.
+#   * nc (true_category==4) and pAngle (true_category!=0) are reco-based and
+#     hit <1% of the fiducial signal (which is ~99% true_category==0), so the
+#     signal truth is unchanged -> reference stays nominal.
+#   * gainHigh/gainLow/emb inject a different *reco* response (separate tree in
+#     merged_v30.root) with no change to the truth -> reference stays nominal.
+# Feed any other version at run time with --truth-reweight "<expr>".
+TRUTH_REWEIGHTS = {
+    "asimov": "1.0",
+    "asimovGrid": "1.0",
+    "10pct": "1.0",  # real data: compare to nominal GENIE
+    "res0p5": "where(true_interaction_mode == 1, 0.5, 1.0)",
+    "res1p5": "where(true_interaction_mode == 1, 1.5, 1.0)",
+    "QE0p5": "where(true_interaction_mode == 0, 0.5, 1.0)",
+    "QE1p5": "where(true_interaction_mode == 0, 1.5, 1.0)",
+    "MEC0p5": "where(true_interaction_mode == 10, 0.5, 1.0)",
+    "MEC1p5": "where(true_interaction_mode == 10, 1.5, 1.0)",
+    "DIS0p5": "where(true_interaction_mode == 2, 0.5, 1.0)",
+    "DIS1p5": "where(true_interaction_mode == 2, 1.5, 1.0)",
+    "Q2": (
+        "where((true_momentum_transfer < 0.0) | (true_momentum_transfer > 0.7), 1.0, "
+        "1.0 - 0.7*(1.0 - (-0.6*true_momentum_transfer*(true_momentum_transfer-0.7)/0.1225 "
+        "+ true_momentum_transfer*(true_momentum_transfer-0.35)/0.245))**2)"
+    ),
+    "nc": "1.0",
+    "pAngle": "1.0",
+    "gainHigh": "1.0",
+    "gainLow": "1.0",
+    "emb": "1.0",
+}
+
+# Short description of each tag's rescale, shown in the plot legend as
+# "GENIE (<desc>)". Only tags whose truth is actually rescaled need an entry;
+# everything else falls back to "GENIE (nominal)".
+TRUTH_REWEIGHT_LABELS = {
+    "Q2": "Q² reweight",
+    "res0p5": "RES ×0.5",
+    "res1p5": "RES ×1.5",
+    "QE0p5": "QE ×0.5",
+    "QE1p5": "QE ×1.5",
+    "MEC0p5": "MEC ×0.5",
+    "MEC1p5": "MEC ×1.5",
+    "DIS0p5": "DIS ×0.5",
+    "DIS1p5": "DIS ×1.5",
+}
 
 _style = load_style_from_toml(STYLE_NAME)
 _wm_style = load_style_from_toml('nue_icarus_data') if WORK_IN_PROGRESS else _style
@@ -49,11 +120,13 @@ def add_watermark_root(canvas, pot=POT_DEFAULT):
         latex.DrawLatex(right, top_line + 0.005, f"{float(pot) / 10**mag:.2f}#times10^{{{mag}}} POT")
 
 
-TEMPLATE_BINNING_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binnings', 'binning_TrueEleE.txt')
+BINNING_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'binnings')
 
 
-def load_template_bin_labels(binning_file=TEMPLATE_BINNING_FILE):
-    """Build 'E_{e} [lo, hi] MeV' labels for each template parameter from a GUNDAM binning text file."""
+def load_template_bin_labels(binning_file=None):
+    """Build e.g. 'E_{e} [lo, hi] MeV' labels for each template parameter from a GUNDAM binning text file."""
+    v = analysis_vars.current()
+    binning_file = binning_file or os.path.join(BINNING_DIR, v['template_binning'])
     labels = []
     with open(binning_file) as f:
         for line in f:
@@ -61,7 +134,49 @@ def load_template_bin_labels(binning_file=TEMPLATE_BINNING_FILE):
             if len(fields) < 2 or fields[0].startswith('variables'):
                 continue
             lo, hi = float(fields[0]), float(fields[1])
-            labels.append(f"E_{{e}} [{lo:g}, {hi:g}] MeV")
+            labels.append(v['param_label'].format(lo=lo, hi=hi))
+    return labels
+
+
+G4_PARAM_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Configs_ParameterSet', 'G4')
+# Particle name and binned variable for each G4 reinteraction set; the bin
+# edges are read from the set's own binning file (parametersBinningPath).
+G4_PARTICLE = {"Proton": "Proton", "PiPlus": "#pi^{+}", "PiMinus": "#pi^{-}"}
+G4_VARIABLE = {"true_leading_proton_p": ("p", "MeV/c"),
+               "true_leading_pion_ke": ("KE", "MeV")}
+
+
+def _fmt_edge(x):
+    return f"{x:g}"
+
+
+def g4_bin_labels(set_name):
+    """Labels like 'Proton p: 400-600 MeV/c' or '#pi^{+} KE: 90-210 MeV' for a G4 set's parameters."""
+    particle = next((v for k, v in G4_PARTICLE.items() if f"G4 {k} " in set_name + " "), set_name)
+    binning = None
+    for fn in sorted(os.listdir(G4_PARAM_DIR)):
+        if not fn.endswith('.yaml'):
+            continue
+        text = open(os.path.join(G4_PARAM_DIR, fn)).read()
+        if re.search(rf'^name:\s*"?{re.escape(set_name)}"?\s*$', text, re.M):
+            m = re.search(r'parametersBinningPath:\s*"?\$\{GUNDAM_CONFIG_DIR\}/(\S+?)"?\s*$', text, re.M)
+            binning = os.path.join(os.path.dirname(os.path.abspath(__file__)), m.group(1))
+            break
+    if binning is None:
+        return None
+    labels = []
+    with open(binning) as f:
+        for line in f:
+            fields = line.split()
+            if not fields:
+                continue
+            if fields[0].startswith('variables'):
+                var, unit = G4_VARIABLE.get(fields[1], (fields[1], ""))
+                continue
+            lo, hi = float(fields[0]), float(fields[1])
+            # Open-ended last bin (upper edge is a large sentinel value).
+            rng = f"> {_fmt_edge(lo)}" if hi >= 1e4 else f"{_fmt_edge(lo)}-{_fmt_edge(hi)}"
+            labels.append(f"{particle} {var}: {rng} {unit}".strip())
     return labels
 
 
@@ -72,6 +187,11 @@ def pretty_param_label(label, template_labels, template_mode=False):
     match = re.match(r'#(\d+)', short)
     if is_template and match and int(match.group(1)) < len(template_labels):
         return template_labels[int(match.group(1))]
+    # Eigen-decomposed sets (e.g. G4) only have '#N_eigen' names: keep the set
+    # name so the entries are distinguishable, e.g. 'G4 Proton eigen 0'.
+    if match and short.endswith('_eigen') and '/' in label:
+        set_short = label.split('/')[0].replace(' Reinteraction', '')
+        return f"{set_short} eigen {match.group(1)}"
     return re.sub(r'^#\d+_', '', short)
 
 
@@ -147,9 +267,11 @@ def make_pixel_canvas(name, frame_w, frame_h, left, right, bottom, top):
     return c
 
 
-def plotMatrix(tree, path, outputDir, plot_name, z_title, colorMap="kBird", pot=POT_DEFAULT):
+def plotMatrix(tree, path, outputDir, plot_name, z_title, colorMap="kBird", pot=POT_DEFAULT,
+               hist=None, labels=None):
+    """Draw a parameter matrix. Pass hist (and labels) to draw an already-built TH2D instead of reading path."""
 
-    h = tree.Get(path)
+    h = hist if hist is not None else tree.Get(path)
     # Detach from the source file's directory so TFile::Close() at the end
     # of main() doesn't delete it out from under the canvas that's still
     # displaying it (SetOwnership below only guards against Python's GC,
@@ -161,10 +283,16 @@ def plotMatrix(tree, path, outputDir, plot_name, z_title, colorMap="kBird", pot=
     r.gStyle.SetOptTitle(0)
     r.gStyle.SetOptStat(0)
 
-    template_labels = load_template_bin_labels()
-    template_mode = 'Template Parameter' in path
-    x_labels = relabel_axis(h.GetXaxis(), template_labels, template_mode)
-    y_labels = relabel_axis(h.GetYaxis(), template_labels, template_mode)
+    if labels is not None:
+        for i, lbl in enumerate(labels, start=1):
+            h.GetXaxis().SetBinLabel(i, lbl)
+            h.GetYaxis().SetBinLabel(i, lbl)
+        x_labels = y_labels = list(labels)
+    else:
+        template_labels = load_template_bin_labels()
+        template_mode = 'Template Parameter' in path
+        x_labels = relabel_axis(h.GetXaxis(), template_labels, template_mode)
+        y_labels = relabel_axis(h.GetYaxis(), template_labels, template_mode)
 
     # Square frame; margins sized to the labels and colour bar so there's no dead space.
     frame = max(1600, 28 * h.GetNbinsX())
@@ -204,17 +332,18 @@ def plotMatrix(tree, path, outputDir, plot_name, z_title, colorMap="kBird", pot=
     c.SaveAs(f"{outputDir}/png/{plot_name}.png")
     c.SaveAs(f"{outputDir}/pkl/{plot_name}.root")
 
-def plotCovarianceMatrix(tree, outputDir, plot_name="covarianceMatrix", path="FitterEngine/postFit/Hesse/hessian/postfitCovariance_TH2D", pot=POT_DEFAULT):
-    plotMatrix(tree, path, outputDir, plot_name, "Covariance", "kBird", pot=pot)
+def plotCovarianceMatrix(tree, outputDir, plot_name="covarianceMatrix", path="FitterEngine/postFit/Hesse/hessian/postfitCovariance_TH2D", pot=POT_DEFAULT, hist=None, labels=None):
+    plotMatrix(tree, path, outputDir, plot_name, "Covariance", "kBird", pot=pot, hist=hist, labels=labels)
 
-def plotCorrelationMatrix(tree, outputDir, plot_name="correlationMatrix", path="FitterEngine/postFit/Hesse/hessian/postfitCorrelation_TH2D", pot=POT_DEFAULT):
-    plotMatrix(tree, path, outputDir, plot_name, "Correlation", "kThermometer", pot=pot)
+def plotCorrelationMatrix(tree, outputDir, plot_name="correlationMatrix", path="FitterEngine/postFit/Hesse/hessian/postfitCorrelation_TH2D", pot=POT_DEFAULT, hist=None, labels=None):
+    plotMatrix(tree, path, outputDir, plot_name, "Correlation", "kThermometer", pot=pot, hist=hist, labels=labels)
 
-def plotPulls(tree, path, outputDir, plot_name, pot=POT_DEFAULT):
-    """Redraw GUNDAM's pre/post-fit parameter canvas on a fresh canvas: no title, rotated renamed labels."""
+def plotPulls(tree, path, outputDir, plot_name, pot=POT_DEFAULT, hists=None, labels=None):
+    """Redraw GUNDAM's pre/post-fit parameter canvas on a fresh canvas: no title, rotated renamed labels.
 
-    c_par = tree.Get(path)
-    r.SetOwnership(c_par, False)
+    Pass hists=(prefit, postfit, line) and labels to draw already-built histograms instead of reading path.
+    """
+
     r.gStyle.SetOptTitle(0)
     r.gStyle.SetOptStat(0)
 
@@ -233,13 +362,21 @@ def plotPulls(tree, path, outputDir, plot_name, pot=POT_DEFAULT):
             clone.SetDirectory(0)
         return clone
 
-    h_prefit = clone_owned(c_par.GetPrimitive("preFitErrors"))
-    h_postfit = clone_owned(c_par.GetPrimitive("postFitErrors"))
-    h_line = c_par.GetPrimitive("preFitErrorHistLine")
-    h_line = clone_owned(h_line) if h_line else None
+    if hists is not None:
+        h_prefit, h_postfit, h_line = (clone_owned(h) if h else None for h in hists)
+        for i, lbl in enumerate(labels, start=1):
+            h_prefit.GetXaxis().SetBinLabel(i, lbl)
+        labels = list(labels)
+    else:
+        c_par = tree.Get(path)
+        r.SetOwnership(c_par, False)
+        h_prefit = clone_owned(c_par.GetPrimitive("preFitErrors"))
+        h_postfit = clone_owned(c_par.GetPrimitive("postFitErrors"))
+        h_line = c_par.GetPrimitive("preFitErrorHistLine")
+        h_line = clone_owned(h_line) if h_line else None
 
-    template_labels = load_template_bin_labels()
-    labels = relabel_axis(h_prefit.GetXaxis(), template_labels, 'Template Parameter' in path)
+        template_labels = load_template_bin_labels()
+        labels = relabel_axis(h_prefit.GetXaxis(), template_labels, 'Template Parameter' in path)
 
     n_bins = h_prefit.GetNbinsX()
     frame_w = max(1600, 60 * n_bins)
@@ -297,6 +434,113 @@ def plotPulls(tree, path, outputDir, plot_name, pot=POT_DEFAULT):
     add_watermark_root(c, pot)
     c.SaveAs(f"{outputDir}/png/{plot_name}.png")
     c.SaveAs(f"{outputDir}/pkl/{plot_name}.root")
+
+
+# Output-file prefixes for the parameter sets that had hand-written names
+# before the per-set loop, so existing plot file names don't change. Any other
+# set gets a camelCase prefix from its name (parameter_set_prefix).
+PARAMETER_SET_PREFIXES = {
+    "Cross section Systematics": "crossSection",
+    "Flux Systematics Beamline": "flux",
+    "Detector Systematics":      "detectorSystematics",
+}
+PULLS_SUFFIX = {"flux": "ParameterFitPulls"}  # historical name: fluxParameterFitPulls
+
+
+def parameter_set_prefix(set_name):
+    if set_name.startswith("Template Parameter"):
+        return "templateParameter"
+    if set_name in PARAMETER_SET_PREFIXES:
+        return PARAMETER_SET_PREFIXES[set_name]
+    words = [w for w in re.split(r"[^A-Za-z0-9]+", set_name) if w]
+    # "G4 PiPlus Reinteraction" -> "g4PiPlusReinteraction"
+    return words[0].lower() + "".join(w[0].upper() + w[1:] for w in words[1:])
+
+
+def list_parameter_sets(fit_file):
+    """Names of the parameter sets with post-fit Hesse errors in the fit file."""
+    d = fit_file.Get("FitterEngine/postFit/Hesse/errors")
+    if not d:
+        return []
+    return [k.GetName() for k in d.GetListOfKeys()]
+
+
+def plot_g4_combined(fit_file, g4_sets, outputDir, pot=POT_DEFAULT):
+    """One pulls plot and one covariance/correlation matrix for all G4 reinteraction sets together.
+
+    The matrices are block-diagonal: each block is that set's own post-fit matrix.
+    The fit stores the G4 sets only eigen-decomposed in the total covariance, so
+    there is no physical-basis cross-set block to fill in.
+    """
+    labels, blocks, pulls = [], [], []
+    for s in g4_sets:
+        base = f"FitterEngine/postFit/Hesse/errors/{s}"
+        cov = fit_file.Get(f"{base}/matrices/Covariance_TH2D")
+        corr = fit_file.Get(f"{base}/matrices/Correlation_TH2D")
+        c = fit_file.Get(f"{base}/values/fitConstraints_TCanvas")
+        n = cov.GetNbinsX()
+        lbls = g4_bin_labels(s) or [f"{s} #{i}" for i in range(n)]
+        if len(lbls) != n:
+            print(f"Warning: {s} has {n} parameters but {len(lbls)} binning labels; using indices")
+            lbls = [f"{s} #{i}" for i in range(n)]
+        labels += lbls
+        blocks.append((cov, corr))
+        pulls.append(tuple(c.GetPrimitive(k) for k in ("preFitErrors", "postFitErrors", "preFitErrorHistLine")))
+
+    N = len(labels)
+    h_cov = r.TH2D("g4_cov", "", N, 0, N, N, 0, N)
+    h_corr = r.TH2D("g4_corr", "", N, 0, N, N, 0, N)
+    off = 0
+    for cov, corr in blocks:
+        n = cov.GetNbinsX()
+        for i in range(1, n + 1):
+            for j in range(1, n + 1):
+                h_cov.SetBinContent(off + i, off + j, cov.GetBinContent(i, j))
+                h_corr.SetBinContent(off + i, off + j, corr.GetBinContent(i, j))
+        off += n
+    for h in (h_cov, h_corr):
+        h.SetDirectory(0)
+        r.SetOwnership(h, False)
+    h_corr.GetZaxis().SetRangeUser(-1, 1)
+
+    def concat(name, parts):
+        if any(p is None for p in parts):
+            return None
+        h = r.TH1D(name, "", N, 0, N)
+        h.SetDirectory(0)
+        r.SetOwnership(h, False)
+        k = 1
+        for p in parts:
+            for i in range(1, p.GetNbinsX() + 1):
+                h.SetBinContent(k, p.GetBinContent(i))
+                h.SetBinError(k, p.GetBinError(i))
+                k += 1
+        # Keep the source style (colours, markers, fill).
+        for attr in ("LineColor", "LineWidth", "LineStyle", "MarkerColor", "MarkerStyle",
+                     "MarkerSize", "FillColor", "FillStyle"):
+            getattr(h, f"Set{attr}")(getattr(parts[0], f"Get{attr}")())
+        return h
+
+    h_pre = concat("g4_pre", [p[0] for p in pulls])
+    h_post = concat("g4_post", [p[1] for p in pulls])
+    h_line = concat("g4_line", [p[2] for p in pulls])
+    if h_line:
+        # The prior-value line is drawn as a plain line: no error bars.
+        for i in range(1, N + 1):
+            h_line.SetBinError(i, 0)
+    # GUNDAM sets the y range per set; use one that covers every set.
+    lo = min(h_pre.GetBinContent(i) - h_pre.GetBinError(i) for i in range(1, N + 1))
+    hi = max(h_pre.GetBinContent(i) + h_pre.GetBinError(i) for i in range(1, N + 1))
+    lo = min(lo, min(h_post.GetBinContent(i) - h_post.GetBinError(i) for i in range(1, N + 1)))
+    hi = max(hi, max(h_post.GetBinContent(i) + h_post.GetBinError(i) for i in range(1, N + 1)))
+    pad = 0.15 * (hi - lo)
+    h_pre.GetYaxis().SetRangeUser(lo - pad, hi + pad)
+    h_pre.GetYaxis().SetTitle(pulls[0][0].GetYaxis().GetTitle() or "Parameter value")
+
+    plotCovarianceMatrix(None, outputDir, plot_name="g4CovarianceMatrix", pot=pot, hist=h_cov, labels=labels)
+    plotCorrelationMatrix(None, outputDir, plot_name="g4CorrelationMatrix", pot=pot, hist=h_corr, labels=labels)
+    plotPulls(None, None, outputDir, "g4FitPulls", pot=pot, hists=(h_pre, h_post, h_line), labels=labels)
+
 
 def draw_stacked_with_band(ax, stack_data, errors, title, x_vals, widths, labels, category_colors, data_y=None, data_yerr=None):
     n_bins_local = len(x_vals)
@@ -357,7 +601,7 @@ def draw_stacked_with_band(ax, stack_data, errors, title, x_vals, widths, labels
     ax.text(0.02, 0.97, title, transform=ax.transAxes, ha='left', va='top', fontsize=14, fontweight='bold')
     return x_edges, total_pred, err
 
-def draw_ratio(ax, total_pred, err, data_y, data_yerr, x_edges, x_vals, center=1.0, ypad=(0.5, 1.5)):
+def draw_ratio(ax, total_pred, err, data_y, data_yerr, x_edges, x_vals, center=1.0, ypad=(0.5, 1.5), xlabel=None):
     tot = np.asarray(total_pred, dtype=float)
     data_y = np.asarray(data_y, dtype=float)
     data_yerr = np.asarray(data_yerr, dtype=float)
@@ -383,23 +627,25 @@ def draw_ratio(ax, total_pred, err, data_y, data_yerr, x_edges, x_vals, center=1
     ax.errorbar(x_vals, ratio, yerr=ratio_err, fmt='o', color='black', zorder=10)
     ax.axhline(center, color='gray', linestyle='--', linewidth=1)
     ax.set_ylim(ypad)
-    ax.set_xlabel("Reco Leading Electron Energy [MeV]")
+    ax.set_xlabel(xlabel or analysis_vars.current()['reco_axis_title'])
     ax.set_ylabel("Data / Pred")
 
-def get_mc_hist(file_obj, category_index, mode):
+def get_mc_hist(file_obj, category_index, mode, sample=None, branch=None):
     """Get category histogram from ROOT file with path fallbacks across file variants."""
+    v = analysis_vars.current()
+    s, b = sample or v['reco_sample'], branch or v['reco_branch']
     candidates = []
     if mode == "pre":
         candidates = [
-            f"toyGen/plots/histograms/signal_EleE (pre-fit)/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
-            f"toyGen/plots/histograms/signal_EleE/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
-            f"toyGen/plots/histograms/signal_EleE_pre_fit/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s} (pre-fit)/{b}/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s}/{b}/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s}_pre_fit/{b}/category/{category_index}/MC_TH1D",
         ]
     else:
         candidates = [
-            f"toyGen/plots/histograms/signal_EleE (post-fit)/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
-            f"toyGen/plots/histograms/signal_EleE/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
-            f"toyGen/plots/histograms/signal_EleE_post_fit/reco_leading_electron_energy/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s} (post-fit)/{b}/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s}/{b}/category/{category_index}/MC_TH1D",
+            f"toyGen/plots/histograms/{s}_post_fit/{b}/category/{category_index}/MC_TH1D",
         ]
 
     for path in candidates:
@@ -409,11 +655,14 @@ def get_mc_hist(file_obj, category_index, mode):
     print("Warning no MC_TH1D found for category", category_index, "in", mode, "fit file. Tried paths:", candidates)
     return None
 
-def getHistErrors(fPre, fPost):
-    h_errors_pre = fPre.Get("toyGen/histograms/signal_EleE_pre_fit_TH1D")  # errors
-    h_errors_post = fPost.Get("toyGen/histograms/signal_EleE_TH1D")  # errors
+def getHistErrors(fPre, fPost, sample=None, branch=None):
+    """Pre/post-fit errors, per-category MC and data for one sample (default: the signal sample)."""
+    v = analysis_vars.current()
+    s, b = sample or v['reco_sample'], branch or v['reco_branch']
+    h_errors_pre = fPre.Get(f"toyGen/histograms/{s}_pre_fit_TH1D")  # errors
+    h_errors_post = fPost.Get(f"toyGen/histograms/{s}_TH1D")  # errors
 
-    h_data = fPost.Get("toyGen/plots/histograms/signal_EleE/reco_leading_electron_energy/Data_TH1D")  # data
+    h_data = fPost.Get(f"toyGen/plots/histograms/{s}/{b}/Data_TH1D")  # data
 
     postFitErrors = []
     preFitErrors = []
@@ -436,8 +685,8 @@ def getHistErrors(fPre, fPost):
         pre_bin_content = [0.0] * n_cat_bins
         post_bin_content = [0.0] * n_cat_bins
         for cat in cat_group:
-            h_data_pre = get_mc_hist(fPre, cat, "pre")
-            h_data_post = get_mc_hist(fPost, cat, "post")
+            h_data_pre = get_mc_hist(fPre, cat, "pre", s, b)
+            h_data_post = get_mc_hist(fPost, cat, "post", s, b)
             if h_data_pre is not None:
                 n_cat_bins = h_data_pre.GetNbinsX()
             elif h_data_post is not None:
@@ -462,10 +711,15 @@ def getHistErrors(fPre, fPost):
 
     return x_vals, widths, preFitErrors, postFitErrors, np.array(h_mc_pre), np.array(h_mc_post), data, data_err, n_bins, labels, category_colors
 
-def plot_pre_post_comparison(prefit_file, postfit_file, outputDir, pot=POT_DEFAULT):
-    """Create side-by-side pre/post stacked plots with ratio panels and save image."""
+def plot_pre_post_comparison(prefit_file, postfit_file, outputDir, pot=POT_DEFAULT,
+                             sample=None, branch=None, xlabel=None, plot_name="pre_post_fit_comparison"):
+    """Create side-by-side pre/post stacked plots with ratio panels and save image.
+
+    Defaults to the signal sample; pass sample/branch/xlabel/plot_name for another
+    sample (e.g. the NC pi0 sideband).
+    """
     try:
-        res = getHistErrors(prefit_file, postfit_file)
+        res = getHistErrors(prefit_file, postfit_file, sample, branch)
         x_vals, widths, preFitErrors, postFitErrors, h_mc_pre, h_mc_post, data, data_err, n_bins, labels, category_colors = res
 
         # set globals expected by existing helper functions
@@ -485,29 +739,37 @@ def plot_pre_post_comparison(prefit_file, postfit_file, outputDir, pot=POT_DEFAU
         edges1, tot1, err1 = draw_stacked_with_band(ax1_main, data_pre, preFitErrors, "Pre-fit", x_vals, widths, labels, category_colors, data, data_err)
         edges2, tot2, err2 = draw_stacked_with_band(ax2_main, data_post, postFitErrors, "Post-fit", x_vals, widths, labels, category_colors, data, data_err)
 
-        draw_ratio(ax1_ratio, tot1, err1, data, data_err, edges1, x_vals)
-        draw_ratio(ax2_ratio, tot2, err2, data, data_err, edges2, x_vals)
+        draw_ratio(ax1_ratio, tot1, err1, data, data_err, edges1, x_vals, xlabel=xlabel)
+        draw_ratio(ax2_ratio, tot2, err2, data, data_err, edges2, x_vals, xlabel=xlabel)
 
         # shared y-limits
         ymax1 = np.nanmax(tot1 + err1) if len(tot1) and len(err1) else 0.0
         ymax2 = np.nanmax(tot2 + err2) if len(tot2) and len(err2) else 0.0
         shared_ymax = max(ymax1, ymax2)
-        pad = 0.12
+        pad = 0.25
         shared_ymax = max(1.0, shared_ymax * (1.0 + pad))
         ax1_main.set_ylim(0.0, shared_ymax)
         ax2_main.set_ylim(0.0, shared_ymax)
-        ax1_main.legend(loc='upper right')
-        ax2_main.legend(loc='upper right')
+        # Put the legend over whichever side of the plot has the lower prediction
+        # (EleE peaks at low energy, EleAngle at forward cos theta).
+        top = np.maximum(tot1 + err1, tot2 + err2)
+        third = max(1, len(top) // 3)
+        if np.nanmax(top[:third]) > np.nanmax(top[-third:]):
+            legend_kw = dict(loc='upper right', ncol=2)
+        else:
+            legend_kw = dict(loc='upper left', bbox_to_anchor=(0.0, 0.92), ncol=2)
+        for ax in (ax1_main, ax2_main):
+            ax.legend(**legend_kw)
         plt.tight_layout(rect=[0, 0, 1, 0.95])
         stamp_ax(ax1_main, pot)
         stamp_ax(ax2_main, pot)
 
-        fig.savefig(f"{outputDir}/png/pre_post_fit_comparison.png")
-        with open(f"{outputDir}/pkl/pre_post_fit_comparison.pkl", "wb") as f:
+        fig.savefig(f"{outputDir}/png/{plot_name}.png")
+        with open(f"{outputDir}/pkl/{plot_name}.pkl", "wb") as f:
             pickle.dump(fig, f)
         plt.close(fig)
     except Exception as e:
-        print("Warning: failed to make pre/post fit comparison:", e)
+        print(f"Warning: failed to make pre/post fit comparison ({plot_name}):", e)
 
 def compute_flux_integral(nuisflat_file, bin_width_divided=False, is_gibuu=False):
     """Integrate a nuisflat file's FlatTree_FLUX into a flux/POT/cm^2 scalar."""
@@ -551,13 +813,128 @@ def combine_flux_averaged_xsec(xsecs, xsec_errs, flux_integrals):
     return xsec_sum / flux_sum, np.sqrt(xsec_err2_sum) / flux_sum
 
 
+_REWEIGHT_NAMESPACE = {
+    "where": np.where, "sin": np.sin, "cos": np.cos, "tan": np.tan,
+    "arcsin": np.arcsin, "arccos": np.arccos, "arctan": np.arctan,
+    "asin": np.arcsin, "acos": np.arccos, "atan": np.arctan,
+    "sqrt": np.sqrt, "abs": np.abs, "exp": np.exp, "log": np.log,
+    "minimum": np.minimum, "maximum": np.maximum, "clip": np.clip,
+    "power": np.power, "pow": np.power, "pi": np.pi, "e": np.e,
+}
+
+
+def _eval_tree_expr(expr, tree):
+    """Evaluate a numpy expression over a TTree's branches.
+
+    Any identifier in `expr` that names a branch is loaded and bound; the rest
+    come from a small whitelist of numpy functions/constants. This lets the
+    fake-data reweight strings mirror the YAML weight formulas (with `where`
+    standing in for the C-style ternary). No Python builtins are exposed.
+    """
+    identifiers = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", expr))
+    available = set(tree.keys())
+    needed = sorted(identifiers & available)
+    namespace = dict(_REWEIGHT_NAMESPACE)
+    if needed:
+        namespace.update(tree.arrays(needed, library="np"))
+    unknown = identifiers - available - set(_REWEIGHT_NAMESPACE)
+    if unknown:
+        raise ValueError(
+            f"reweight expression references unknown names {sorted(unknown)}; "
+            f"only truth-tree branches and {sorted(_REWEIGHT_NAMESPACE)} are allowed"
+        )
+    return eval(expr, {"__builtins__": {}}, namespace)  # noqa: S307 (whitelisted namespace)
+
+
+def compute_mc_truth_xsec(edges, reweight_expr="1.0",
+                          flux=MC_TRUTH_FLUX, ntargets=MC_TRUTH_NTARGETS):
+    """dsigma/dE from the CAF signal-truth tree, optionally scaled by a reweight.
+
+    Reproduces gundamCalcXsec's signal truth (same tree, weight, selection and
+    flux x target normalisation), times `reweight_expr`. With the default
+    reweight this is the nominal truth; with a fake-data reweight it is the true
+    cross section of the injected fake data — the correct closure reference.
+    Returns (xsec, xsec_stat_err) per unit of the plotted variable per Ar on
+    `edges` (GeV for EleE, cos theta for EleAngle).
+    """
+    v = analysis_vars.current()
+    with uproot.open(MC_TRUTH_FILE) as f:
+        tree = f[MC_TRUTH_TREE]
+        var = tree[v['truth_branch']].array(library="np") * v['unit_scale']  # e.g. MeV -> GeV
+        nominal_w = np.asarray(_eval_tree_expr(MC_TRUTH_NOMINAL_WEIGHT, tree), dtype=float)
+        selection = np.asarray(_eval_tree_expr(MC_TRUTH_SELECTION, tree)).astype(bool)
+        reweight = np.broadcast_to(
+            np.asarray(_eval_tree_expr(reweight_expr, tree), dtype=float), var.shape)
+
+    weight = nominal_w * reweight
+    bin_widths = np.diff(edges)
+    counts = np.histogram(var[selection], bins=edges, weights=weight[selection])[0]
+    counts_err2 = np.histogram(var[selection], bins=edges, weights=weight[selection] ** 2)[0]
+
+    norm = bin_widths * flux * ntargets
+    return counts / norm, np.sqrt(counts_err2) / norm
+
+
+def parse_gundam_bin_edges(axis_labels, unit_scale=1e-3):
+    """Parse physical bin edges from GUNDAM '[lo, hi[' axis labels.
+
+    GUNDAM stores TH1 bin edges as sequential integers; the physical ranges live
+    in the bin labels, e.g. 'true_leading_electron_energy: [300, 450['. The
+    default unit_scale converts the stored MeV to GeV.
+    """
+    edges = []
+    for i, label in enumerate(axis_labels):
+        nums = label.split(":")[-1].strip().lstrip("[").split(",")
+        lo = float(nums[0].strip())
+        hi = float(nums[1].strip().rstrip("[]()"))
+        if i == 0:
+            edges.append(lo * unit_scale)
+        edges.append(hi * unit_scale)
+    return np.array(edges)
+
+
 def load_gundam_xsec(root_file, hist_name, unit_scale=1.0):
-    """Read a GUNDAM cross-section TH1D and its stat errors."""
+    """Read a GUNDAM cross-section TH1D, its stat errors, and physical bin edges (GeV).
+
+    Edges come from the bin labels (not to_numpy's integer indices), so callers
+    adapt to any (re)binning of truth space.
+    """
     with uproot.open(root_file) as f:
         h_xsec = f[hist_name]
-        counts, edges = h_xsec.to_numpy()
+        counts = h_xsec.values()
         errs = h_xsec.errors()
+        labels = h_xsec.axis(0).labels()
+    edges = parse_gundam_bin_edges(labels, unit_scale=analysis_vars.current()['unit_scale'])
     return counts * unit_scale, errs * unit_scale, edges
+
+
+def load_gundam_xsec_cov(root_file, cov_name="calcXsec/matrices/covarianceMatrix_TH2D",
+                         unit_scale=1.0):
+    """Read the calcXsec xsec covariance matrix, scaled to match load_gundam_xsec values.
+
+    The matrix has units of (xsec)^2, so the value unit_scale enters squared. Returns
+    None if the matrix is absent (older outputs) so callers can fall back to the diagonal.
+    """
+    try:
+        with uproot.open(root_file) as f:
+            cov = f[cov_name].values()
+        return np.asarray(cov, dtype=float) * (unit_scale ** 2)
+    except Exception as e:
+        print("Warning: xsec covariance unavailable, using diagonal errors:", e)
+        return None
+
+
+def _cov_chi2(residual, cov):
+    """Correlated chi2 = r^T C^-1 r, with ndof and p-value. Falls back to a
+    pseudo-inverse if C is singular. Returns (chi2, ndof, pvalue)."""
+    residual = np.asarray(residual, dtype=float)
+    ndof = residual.size
+    try:
+        solved = np.linalg.solve(cov, residual)
+    except np.linalg.LinAlgError:
+        solved = np.linalg.pinv(cov) @ residual
+    chi2_val = float(residual @ solved)
+    return chi2_val, ndof, float(stats.chi2.sf(chi2_val, ndof))
 
 
 def _chi2_pvalue(vals_a, err_a, vals_b, err_b):
@@ -576,8 +953,14 @@ def _chi2_pvalue(vals_a, err_a, vals_b, err_b):
 
 def plot_xsec_comparison(edges, ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec_err,
                           xlabel, ylabel, ref_label='GENIE', ylim=None,
-                          ratio_ylim=None, outpath=None, pot=POT_DEFAULT, fontsize=18):
-    """Draw a two-panel cross-section comparison: a reference (e.g. GENIE) vs GUNDAM, with a ratio panel.
+                          ratio_ylim=None, outpath=None, pot=POT_DEFAULT, fontsize=18,
+                          extra_xsec=None, extra_xsec_err=None, extra_label=None,
+                          chi2_text=None):
+    """Draw a two-panel cross-section comparison: a reference (the closure target) vs GUNDAM, with a ratio panel.
+
+    `ref_xsec` is the primary reference the chi2 and ratio are computed against.
+    An optional `extra_xsec` (e.g. an independent GENIE generator prediction) is
+    overlaid for context only and does not enter the chi2.
 
     Any '{scale}' in ylabel is replaced by the common power of ten, which is divided out of
     the plotted values so matplotlib's offset text doesn't collide with the watermark.
@@ -589,6 +972,8 @@ def plot_xsec_comparison(edges, ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec
     unit = 10.0 ** exponent
     ref_xsec, ref_xsec_err = ref_xsec / unit, ref_xsec_err / unit
     gundam_xsec, gundam_xsec_err = gundam_xsec / unit, gundam_xsec_err / unit
+    if extra_xsec is not None:
+        extra_xsec = np.asarray(extra_xsec) / unit
     ylabel = ylabel.replace('{scale}', rf'$10^{{{exponent}}}$')
     if ylim:
         ylim = (ylim[0] / unit, ylim[1] / unit)
@@ -599,9 +984,21 @@ def plot_xsec_comparison(edges, ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec
     fig.subplots_adjust(hspace=0.05)
 
     ax_xsec.hist(edges[:-1], bins=edges, weights=ref_xsec, label=ref_label, histtype='step', alpha=1.0, color='blue', linewidth=2)
+    if extra_xsec is not None:
+        ax_xsec.hist(edges[:-1], bins=edges, weights=extra_xsec,
+                      label=extra_label or 'reference', histtype='step',
+                      alpha=0.7, color='green', linewidth=2, linestyle='--')
     ax_xsec.errorbar(bin_centers, gundam_xsec, yerr=gundam_xsec_err, xerr=bin_widths / 2,
                       fmt='o', capsize=5, label='GUNDAM', color='black', markersize=6)
-    ax_xsec.legend(loc='upper right', fontsize=fontsize)
+    # Legend and chi2 text go on whichever side of the plot is lower
+    # (EleE peaks at low energy, EleAngle at forward cos theta).
+    span = edges[-1] - edges[0]
+    tops = np.nan_to_num(np.maximum(ref_xsec, gundam_xsec + gundam_xsec_err))
+    left_top = np.max(tops[bin_centers < edges[0] + 0.4 * span], initial=0.0)
+    right_top = np.max(tops[bin_centers > edges[-1] - 0.4 * span], initial=0.0)
+    text_on_left = right_top > left_top
+    text_x, text_ha = (0.03, 'left') if text_on_left else (0.97, 'right')
+    ax_xsec.legend(loc='upper left' if text_on_left else 'upper right', fontsize=fontsize)
     ax_xsec.set_ylabel(ylabel)
     if ylim:
         ax_xsec.set_ylim(*ylim)
@@ -609,13 +1006,15 @@ def plot_xsec_comparison(edges, ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec
         top = np.nanmax([np.nanmax(ref_xsec), np.nanmax(gundam_xsec + gundam_xsec_err)])
         ax_xsec.set_ylim(0, top * 1.15)
 
-    chi2_val, ndof, pvalue = _chi2_pvalue(ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec_err)
-    chi2_ndof = chi2_val / ndof if ndof > 0 else np.nan
+    if chi2_text is None:
+        chi2_val, ndof, pvalue = _chi2_pvalue(ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec_err)
+        chi2_ndof = chi2_val / ndof if ndof > 0 else np.nan
+        chi2_text = (r'$\chi^2$/ndof = %.1f/%d = %.2f' % (chi2_val, ndof, chi2_ndof)
+                     + '\n' + r'p = %.3f' % (pvalue))
     ax_xsec.text(
-        0.97, 0.78,
-        r'$\chi^2$/ndof = %.1f/%d = %.2f' % (chi2_val, ndof, chi2_ndof) + '\n' + r'p = %.3f' % (pvalue),
+        text_x, 0.74, chi2_text,
         transform=ax_xsec.transAxes,
-        fontsize=fontsize, ha='right', va='top',
+        fontsize=fontsize, ha=text_ha, va='top',
     )
 
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -649,41 +1048,119 @@ def plot_xsec_comparison(edges, ref_xsec, ref_xsec_err, gundam_xsec, gundam_xsec
     return fig, (ax_xsec, ax_ratio)
 
 
-def plot_genie_gundam_comparison(outputDir, gundam_xsec_file, pot=POT_DEFAULT):
-    """Create the GENIE (NUISANCE flat tree) vs GUNDAM cross-section comparison plot and save it."""
+def _external_genie_xsec(xsec_edges):
+    """Flux-averaged GENIE prediction from the independent NUISANCE flat trees.
+
+    This is a separate generator sample (not the CAF MC the fit runs on), so it
+    serves only as a context overlay, never as the closure target. Returns
+    (xsec, xsec_err) or (None, None) if the flat trees are unavailable.
+    """
+    nue_flat_trees = {
+        'nue': '/exp/icarus/data/users/micarrig/genie/nue_samples_v3_04_00/p12_1000180400_CC_v3_4_0_AR23_20i_00_000.flat.root',
+        'nuebar': '/exp/icarus/data/users/micarrig/genie/nue_samples_v3_04_00/p-12_1000180400_CC_v3_4_0_AR23_20i_00_000.flat.root',
+    }
+    genie_var = analysis_vars.current()['genie_branch']
+    nue_branches = ['ICARUS_1eInc_IsSignal', genie_var, 'InputWeight', 'fScaleFactor']
     try:
-        gundam_xsec_hist = "calcXsec/histograms/TrueEleE_XS_TH1D"
-
-        # NUISANCE-flattened GENIE samples (nue, nuebar)
-        nue_flat_trees = {
-            'nue': '/exp/icarus/data/users/micarrig/genie/nue_samples_v3_04_00/p12_1000180400_CC_v3_4_0_AR23_20i_00_000.flat.root',
-            'nuebar': '/exp/icarus/data/users/micarrig/genie/nue_samples_v3_04_00/p-12_1000180400_CC_v3_4_0_AR23_20i_00_000.flat.root',
-        }
-
-        # Same analysis binning used by the GUNDAM template (GeV)
-        xsec_edges = np.array([0.300, 0.390, 0.490, 0.600, 0.730, 0.870, 1.030, 1.240, 1.500, 2.000, 5.000])
-
-        nue_branches = ['ICARUS_1eInc_IsSignal', 'ICARUS_1eInc_electronEnergy', 'InputWeight', 'fScaleFactor']
-
         genie_xsecs, genie_xsec_errs, flux_integrals = [], [], []
         for file_path in nue_flat_trees.values():
             df = load_nuisflat_dataframe(file_path, nue_branches)
             xsec, xsec_err = compute_genie_xsec(
-                df, 'ICARUS_1eInc_electronEnergy', xsec_edges,
+                df, genie_var, xsec_edges,
                 signal_selection_expr='(ICARUS_1eInc_IsSignal==True)',
             )
             genie_xsecs.append(xsec)
             genie_xsec_errs.append(xsec_err)
             flux_integrals.append(compute_flux_integral(file_path))
+        return combine_flux_averaged_xsec(genie_xsecs, genie_xsec_errs, flux_integrals)
+    except Exception as e:
+        print("Warning: external GENIE overlay unavailable:", e)
+        return None, None
 
-        genie_xsec, genie_xsec_err = combine_flux_averaged_xsec(genie_xsecs, genie_xsec_errs, flux_integrals)
 
-        gundam_xsec, gundam_xsec_err, _ = load_gundam_xsec(gundam_xsec_file, gundam_xsec_hist, unit_scale=1000) # units scale to convert MeV->GeV
+def closure_chi2(gundam_xsec_file, truth_reweight="1.0", xsec=None, truth=None):
+    """Closure chi2 of the GUNDAM xsec against the (reweighted) CAF truth.
+
+    The correlated chi2 uses the full calcXsec covariance (xsec bins are strongly
+    correlated) plus the truth's MC-stat error on the diagonal, which is negligible
+    but keeps the two estimates independent. Uses the variable selected in
+    analysis_vars. `xsec`/`truth` let a caller that has already loaded them skip
+    the reload. Returns a dict: chi2_corr, p_corr (None if no covariance),
+    chi2_uncorr, p_uncorr, ndof.
+    """
+    v = analysis_vars.current()
+    xsec_scale = 1.0 / v['unit_scale']
+    if xsec is None:
+        xsec = load_gundam_xsec(gundam_xsec_file, v['xsec_hist'], unit_scale=xsec_scale)
+    gundam_xsec, gundam_xsec_err, edges = xsec
+    if truth is None:
+        truth = compute_mc_truth_xsec(edges, truth_reweight)
+    truth_xsec, truth_xsec_err = truth
+
+    chi2_d, ndof_d, p_d = _chi2_pvalue(truth_xsec, truth_xsec_err, gundam_xsec, gundam_xsec_err)
+    out = dict(chi2_corr=None, p_corr=None, chi2_uncorr=chi2_d, p_uncorr=p_d, ndof=ndof_d)
+    cov = load_gundam_xsec_cov(gundam_xsec_file, unit_scale=xsec_scale)
+    if cov is not None:
+        cov = cov + np.diag(np.asarray(truth_xsec_err, dtype=float) ** 2)
+        chi2_c, ndof_c, p_c = _cov_chi2(gundam_xsec - truth_xsec, cov)
+        out.update(chi2_corr=chi2_c, p_corr=p_c, ndof=ndof_c)
+    return out
+
+
+def plot_genie_gundam_comparison(outputDir, gundam_xsec_file, pot=POT_DEFAULT,
+                                 truth_reweight="1.0", truth_label=None):
+    """GUNDAM extracted vs the fake-data truth cross section (the closure test).
+
+    The primary reference is the CAF signal truth scaled by `truth_reweight` —
+    i.e. the true cross section of the injected fake data, which is what GUNDAM
+    must reproduce for the study to close. The independent GENIE flat-tree
+    prediction is overlaid for context only. `truth_reweight` is a numpy
+    expression over the truth-tree branches (default "1.0" = nominal truth).
+    """
+    try:
+        v = analysis_vars.current()
+        gundam_xsec_hist = v['xsec_hist']
+        # GUNDAM's xsec is per branch unit (per MeV for EleE); convert to per plot unit.
+        xsec_scale = 1.0 / v['unit_scale']
+
+        # Analysis binning is read from the GUNDAM xsec histogram's bin labels, so
+        # the truth comparison adapts to any (re)binning of truth space.
+        gundam_xsec, gundam_xsec_err, xsec_edges = load_gundam_xsec(
+            gundam_xsec_file, gundam_xsec_hist, unit_scale=xsec_scale)
+
+        # Closure reference: the fake data's own true cross section.
+        truth_xsec, truth_xsec_err = compute_mc_truth_xsec(xsec_edges, truth_reweight)
+        is_nominal = str(truth_reweight).strip() in ("1.0", "1", "")
+        ref_label = truth_label or ("GENIE (nominal)" if is_nominal else "GENIE (reweighted)")
+
+        res = closure_chi2(gundam_xsec_file, truth_reweight,
+                           xsec=(gundam_xsec, gundam_xsec_err, xsec_edges),
+                           truth=(truth_xsec, truth_xsec_err))
+        if res['chi2_corr'] is not None:
+            chi2_text = (
+                r'$\chi^2$/ndof = %.1f/%d = %.2f (corr.)'
+                % (res['chi2_corr'], res['ndof'], res['chi2_corr'] / res['ndof'])
+                + '\n' + r'p = %.3f' % res['p_corr']
+                + '\n' + r'$\chi^2_{\mathrm{uncorr}}$ = %.1f/%d' % (res['chi2_uncorr'], res['ndof'])
+            )
+        else:
+            chi2_text = None  # plot_xsec_comparison falls back to the diagonal chi2
+
+        # Independent GENIE generator prediction, overlaid for context only.
+        # Suppress it when it would just duplicate a nominal primary curve.
+        genie_xsec, _ = _external_genie_xsec(xsec_edges)
+        extra_label = 'GENIE (nominal)'
+        if genie_xsec is None or ref_label == extra_label:
+            genie_xsec, extra_label = None, None
 
         fig, _ = plot_xsec_comparison(
-            xsec_edges, genie_xsec, genie_xsec_err, gundam_xsec, gundam_xsec_err,
-            xlabel=r'$E_{e}$ (GeV)',
-            ylabel=r'$d\sigma/dE$ [{scale} cm$^{2}$ / GeV / Ar]',
+            xsec_edges, truth_xsec, truth_xsec_err, gundam_xsec, gundam_xsec_err,
+            xlabel=v['label'],
+            ylabel=v['xsec_ylabel'],
+            ref_label=ref_label,
+            extra_xsec=genie_xsec,
+            extra_label=extra_label,
+            chi2_text=chi2_text,
             outpath=f"{outputDir}/png/genie_gundam_xsec_comparison.png",
             pot=pot,
         )
@@ -691,21 +1168,28 @@ def plot_genie_gundam_comparison(outputDir, gundam_xsec_file, pot=POT_DEFAULT):
             pickle.dump(fig, f)
         plt.close(fig)
     except Exception as e:
-        print("Warning: failed to make GENIE/GUNDAM cross-section comparison:", e)
+        print("Warning: failed to make truth/GUNDAM cross-section comparison:", e)
 
 
-def main(tag='asimov', pot=POT_DEFAULT):
+def main(tag='asimov', pot=POT_DEFAULT, data_dir=None, output_dir=None,
+         truth_reweight=None, truth_label=None):
 
     r.gROOT.SetBatch(True)
     plt.style.use(_style.get_style())
 
-    outputDir = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/plots/{tag}'
-    
-    fitFile = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/data/{tag}/fit_{tag}.root'
-    # xsecFile = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/data/{tag}/nue_asimovXSec.root'
-    prefitFile = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/data/{tag}/toy_pf_{tag}.root'
-    postfitFile = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/data/{tag}/toy_bf_{tag}.root'
-    xsecFile = f'/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue/data/{tag}/xsec_{tag}.root'
+    # Directories default to the tag-based layout, but can be overridden (e.g.
+    # when run_fake_study.sh is given a custom output directory).
+    _base = '/nashome/m/micarrig/icarus/gundam/gundam-icarus/configsNue'
+    # Each variable has its own tree: data/<var>/<tag>, as run_fake_study.sh does.
+    var_name = analysis_vars.current_name()
+    data_dir = data_dir or f'{_base}/data/{var_name}/{tag}'
+    outputDir = output_dir or f'{_base}/plots/{var_name}/{tag}'
+
+    fitFile = f'{data_dir}/fit_{tag}.root'
+    # xsecFile = f'{data_dir}/nue_asimovXSec.root'
+    prefitFile = f'{data_dir}/toy_pf_{tag}.root'
+    postfitFile = f'{data_dir}/toy_bf_{tag}.root'
+    xsecFile = f'{data_dir}/xsec_{tag}.root'
 
     fit_file = r.TFile(fitFile)
     # xsec_file = r.TFile(xsecFile)
@@ -720,44 +1204,55 @@ def main(tag='asimov', pot=POT_DEFAULT):
     plotCovarianceMatrix(fit_file, outputDir, pot=pot)
     plotCorrelationMatrix(fit_file, outputDir, pot=pot)
 
-    # Template Parameters
-    try:
-        plotCovarianceMatrix(fit_file, outputDir, plot_name="templateParameterCovarianceMatrix", path="FitterEngine/postFit/Hesse/errors/Template Parameter true_leading_electron_energy/matrices/Covariance_TH2D", pot=pot)
-        plotCorrelationMatrix(fit_file, outputDir, plot_name="templateParameterCorrelationMatrix", path="FitterEngine/postFit/Hesse/errors/Template Parameter true_leading_electron_energy/matrices/Correlation_TH2D", pot=pot)
-        plotPulls(fit_file, "FitterEngine/postFit/Hesse/errors/Template Parameter true_leading_electron_energy/values/fitConstraints_TCanvas", outputDir, "templateParameterFitPulls", pot=pot)
-    except Exception as e:
-        print("Warning: failed to make template parameter plots:", e)
-
-
-    # Cross Section Parameters
-    try:
-        plotCovarianceMatrix(fit_file, outputDir, plot_name="crossSectionCovarianceMatrix", path="FitterEngine/postFit/Hesse/errors/Cross section Systematics/matrices/Covariance_TH2D", pot=pot)
-        plotCorrelationMatrix(fit_file, outputDir, plot_name="crossSectionCorrelationMatrix", path="FitterEngine/postFit/Hesse/errors/Cross section Systematics/matrices/Correlation_TH2D", pot=pot)
-        plotPulls(fit_file, "FitterEngine/postFit/Hesse/errors/Cross section Systematics/values/fitConstraints_TCanvas", outputDir, "crossSectionFitPulls", pot=pot)
-    except Exception as e:
-        print("Warning: failed to make cross section parameter plots:", e)
-
-    # Flux Parameters
-    try:
-        plotCovarianceMatrix(fit_file, outputDir, plot_name="fluxCovarianceMatrix", path="FitterEngine/postFit/Hesse/errors/Flux Systematics Beamline/matrices/Covariance_TH2D", pot=pot)
-        plotCorrelationMatrix(fit_file, outputDir, plot_name="fluxCorrelationMatrix", path="FitterEngine/postFit/Hesse/errors/Flux Systematics Beamline/matrices/Correlation_TH2D", pot=pot)
-        plotPulls(fit_file, "FitterEngine/postFit/Hesse/errors/Flux Systematics Beamline/values/fitConstraints_TCanvas", outputDir, "fluxParameterFitPulls", pot=pot)
-    except Exception as e:
-        print("Warning: failed to make flux parameter plots:", e)
-
-    # Detector Systematics
-    try:
-        plotCovarianceMatrix(fit_file, outputDir, plot_name="detectorSystematicsCovarianceMatrix", path="FitterEngine/postFit/Hesse/errors/Detector Systematics/matrices/Covariance_TH2D", pot=pot)
-        plotCorrelationMatrix(fit_file, outputDir, plot_name="detectorSystematicsCorrelationMatrix", path="FitterEngine/postFit/Hesse/errors/Detector Systematics/matrices/Correlation_TH2D", pot=pot)
-        plotPulls(fit_file, "FitterEngine/postFit/Hesse/errors/Detector Systematics/values/fitConstraints_TCanvas", outputDir, "detectorSystematicsFitPulls", pot=pot)
-    except Exception as e:
-        print("Warning: failed to make detector systematics plots:", e)
+    # Per-parameter-set pulls + covariance + correlation. Loops over every set
+    # the fit stored, so new sets are picked up automatically. The G4
+    # reinteraction sets are drawn together in one set of plots instead.
+    all_sets = list_parameter_sets(fit_file)
+    g4_sets = [s for s in all_sets if s.startswith("G4 ")]
+    for set_name in all_sets:
+        if set_name in g4_sets:
+            continue
+        prefix = parameter_set_prefix(set_name)
+        base = f"FitterEngine/postFit/Hesse/errors/{set_name}"
+        names = {"pulls": f"{prefix}{PULLS_SUFFIX.get(prefix, 'FitPulls')}",
+                 "cov":   f"{prefix}CovarianceMatrix",
+                 "corr":  f"{prefix}CorrelationMatrix"}
+        try:
+            plotCovarianceMatrix(fit_file, outputDir, plot_name=names["cov"], path=f"{base}/matrices/Covariance_TH2D", pot=pot)
+            plotCorrelationMatrix(fit_file, outputDir, plot_name=names["corr"], path=f"{base}/matrices/Correlation_TH2D", pot=pot)
+            plotPulls(fit_file, f"{base}/values/fitConstraints_TCanvas", outputDir, names["pulls"], pot=pot)
+        except Exception as e:
+            print(f"Warning: failed to make plots for parameter set '{set_name}':", e)
+    if g4_sets:
+        try:
+            plot_g4_combined(fit_file, g4_sets, outputDir, pot=pot)
+        except Exception as e:
+            print("Warning: failed to make the combined G4 plots:", e)
 
     # Pre/Post fit stacked comparison (moved to helper)
     plot_pre_post_comparison(prefit_file, postfit_file, outputDir, pot=pot)
 
-    # GENIE (CAF truth) vs GUNDAM cross-section comparison
-    plot_genie_gundam_comparison(outputDir, xsecFile, pot=pot)
+    # Same comparison for the NC pi0 sideband, when the fit has one.
+    v = analysis_vars.current()
+    sb = v.get('sideband_sample')
+    if sb and postfit_file.Get(f"toyGen/histograms/{sb}_TH1D"):
+        plot_pre_post_comparison(prefit_file, postfit_file, outputDir, pot=pot,
+                                 sample=sb, branch=v['sideband_branch'],
+                                 xlabel=v['sideband_axis_title'],
+                                 plot_name="sideband_pre_post_fit_comparison")
+
+    # GUNDAM extracted vs the fake-data truth cross section (closure test).
+    # The reweight defaults to this tag's known injection; override with
+    # --truth-reweight to feed a specific version.
+    if truth_reweight is None:
+        truth_reweight = TRUTH_REWEIGHTS.get(tag, "1.0")
+        if tag not in TRUTH_REWEIGHTS:
+            print(f"Note: no truth reweight registered for tag '{tag}'; "
+                  f"using nominal truth. Pass --truth-reweight to override.")
+    if truth_label is None and tag in TRUTH_REWEIGHT_LABELS:
+        truth_label = f"GENIE ({TRUTH_REWEIGHT_LABELS[tag]})"
+    plot_genie_gundam_comparison(outputDir, xsecFile, pot=pot,
+                                 truth_reweight=truth_reweight, truth_label=truth_label)
 
     # Deliberately skip TFile.Close()/normal interpreter teardown: all PNGs
     # are already on disk by this point, the files were opened read-only, and
@@ -771,7 +1266,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate GUNDAM pretty plots")
     parser.add_argument("--tag", default="asimov", help="Dataset tag to use for input/output paths")
     parser.add_argument("--pot", default=POT_DEFAULT, help="POT value to display on the plots")
+    parser.add_argument("--data-dir", default=None,
+                        help="Directory containing the input ROOT files (default: data/<var>/<tag>)")
+    parser.add_argument("--output-dir", default=None,
+                        help="Directory to write plots into (default: plots/<var>/<tag>)")
+    parser.add_argument("--truth-reweight", default=None,
+                        help="numpy expression over the truth-tree branches giving the "
+                             "fake-data signal reweight for the xsec closure reference "
+                             "(e.g. \"where(true_interaction_mode==1, 0.5, 1.0)\"). "
+                             "Default: this tag's registered reweight, else nominal.")
+    parser.add_argument("--truth-label", default=None,
+                        help="Legend label for the truth reference curve.")
+    parser.add_argument("--var", default=None, choices=sorted(analysis_vars.VARIABLES),
+                        help="Analysis variable (default: $GUNDAM_VAR, else EleE)")
     args = parser.parse_args()
+    if args.var:
+        analysis_vars.set_var(args.var)
 
-    main(tag=args.tag, pot=args.pot)
+    main(tag=args.tag, pot=args.pot, data_dir=args.data_dir, output_dir=args.output_dir,
+         truth_reweight=args.truth_reweight, truth_label=args.truth_label)
     os._exit(0)

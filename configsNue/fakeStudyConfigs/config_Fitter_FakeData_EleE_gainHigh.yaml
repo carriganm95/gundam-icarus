@@ -46,7 +46,7 @@ fitterEngineConfig:
         mc:
           tree: "events/NuMIFull/selected"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -62,8 +62,41 @@ fitterEngineConfig:
             tree: "events/induction_high/selected"
             nominalWeightFormula: "(1.1481618)" # 2.1773935e+20 -> 2.5e20
             filePathList:
-              - "/exp/icarus/data/users/micarrig/merged_v30.root"
+              - "/exp/icarus/data/users/micarrig/merged_final_v31e_flux.root"
             selectionCutFormula: "true_neutrino_id >= 0"
+
+      # NC pi0 sideband: same MC/fake-data model as the signal dataset, nc_sideband trees
+      - name: "ICARUSNuMI_ncSideband"
+
+        isEnabled: true
+
+        #selectedDataEntry: "FakeDataFromMC"
+        selectedDataEntry: "FakeDataFromMC"
+
+        showSelectedEventCount: true
+
+        mc:
+          tree: "events/NuMIFull/nc_sideband"
+          filePathList:
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+          # - MC POT: 1.0900766e+21
+          # - POT to normalize: 2.500616E+20
+          # - Flux weight
+          #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+          #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+          # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+          nominalWeightFormula: "(0.35231940) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.5e20
+
+        data:
+          # data from the same MC
+          - name: "FakeDataFromMC"
+            tree: "events/induction_high/nc_sideband"
+            nominalWeightFormula: "(1.1481618)" # 2.1773935e+20 -> 2.5e20
+            filePathList:
+              - "/exp/icarus/data/users/micarrig/merged_final_v31e_flux.root"
+            selectionCutFormula: "true_neutrino_id >= 0"
+
               
       - name: "ICARUSNuMI_nueCCInclusiveCosmics"
 
@@ -77,7 +110,7 @@ fitterEngineConfig:
         mc:
           tree: "events/NuMIFull/selected_nonmatched"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -93,7 +126,7 @@ fitterEngineConfig:
             tree: "events/induction_high/selected"
             nominalWeightFormula: "(1.1481618)" # 2.1773935e+20 -> 2.5e20
             filePathList:
-              - "/exp/icarus/data/users/micarrig/merged_v30.root"
+              - "/exp/icarus/data/users/micarrig/merged_final_v31e_flux.root"
             selectionCutFormula: "true_neutrino_id < 0"
       
       - name: "ICARUSNuMI_nueCCInclusive_beamoff"
@@ -108,7 +141,7 @@ fitterEngineConfig:
         mc:
           tree: "events/dataBeamOff/selected"
           filePathList:
-            - "/exp/icarus/data/users/micarrig/gundam_v30.root"
+            - "/exp/icarus/data/users/micarrig/gundam_v31.root"
           # - MC POT: 1.0900766e+21
           # - POT to normalize: 2.500616E+20
           # - Flux weight
@@ -127,7 +160,7 @@ fitterEngineConfig:
             # nominalWeightFormula: "(true_interaction_mode == 1) ? 1.5 * (0.35231940) : (0.35231940)" # 7.095834e+20 -> scaling to 2.5e20
             nominalWeightFormula: "(0.121)" # 7.095834e+20 -> scaling to 2.5e20
             filePathList:
-              - "/exp/icarus/data/users/micarrig/gundam_v30.root" 
+              - "/exp/icarus/data/users/micarrig/gundam_v31.root" 
 
   ## "_enablePca_" is set by {"enablePca"}, {"runPcaCheck"}, {"fixGhostFitParameters"}
   ## - default: false

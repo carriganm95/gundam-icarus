@@ -1,0 +1,9 @@
+- name: "ICARUSNuMI_nueCCInclusive_true"
+
+  mc:
+
+    tree: "events/NuMIFull/all_signal"
+    filePathList:
+      - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+    nominalWeightFormula: "(0.0332764) * ppfx_cv_weight" #scaling to 2.36e19POT
+

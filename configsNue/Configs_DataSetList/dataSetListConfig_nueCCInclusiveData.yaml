@@ -1,0 +1,51 @@
+- name: "ICARUSNuMI_nueCCInclusive"
+
+  isEnabled: true
+
+  #selectedDataEntry: "FakeDataFromMC"
+  selectedDataEntry: "FakeDataFromMC"
+
+  showSelectedEventCount: true
+
+  mc:
+    tree: "events/NuMIFull/selected"
+    filePathList:
+      - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+    # - MC POT: 1.0900766e+21
+    # - POT to normalize: 2.500616E+20
+    # - Flux weight
+    #   - Is CosmicSlice (Category==11), applying 0.71202822; avergae flux weight
+    #   - If not, i.e., neutrino-matched slice, apply flux weight, "CVWgt"
+
+    # true_interaction_mode: [0-QE, 1-RES, 2-DIS, 10-MEC]
+    nominalWeightFormula: "(0.033276) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.36124e19
+
+  data:
+    # data from the same MC
+    - name: "FakeDataFromMC"
+      tree: "events/data/selected"
+      nominalWeightFormula: "(1.0)"
+      filePathList:
+        - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+
+# NC pi0 sideband: MC nc_sideband tree scaled to the 10% data POT, real data nc_sideband tree.
+- name: "ICARUSNuMI_ncSideband"
+
+  isEnabled: true
+
+  selectedDataEntry: "FakeDataFromMC"
+
+  showSelectedEventCount: true
+
+  mc:
+    tree: "events/NuMIFull/nc_sideband"
+    filePathList:
+      - "/exp/icarus/data/users/micarrig/gundam_v31.root"
+    nominalWeightFormula: "(0.033276) * ppfx_cv_weight" # 7.095834e+20 -> scaling to 2.36124e19
+
+  data:
+    - name: "FakeDataFromMC"
+      tree: "events/data/nc_sideband"
+      nominalWeightFormula: "(1.0)"
+      filePathList:
+        - "/exp/icarus/data/users/micarrig/gundam_v31.root"
